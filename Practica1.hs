@@ -5,7 +5,7 @@ sucesor n = n + 1
 
 -- b)
 sumar :: Int -> Int -> Int
-sumar n m = n + m
+sumar n m = n+m
 
 --c)
 divisionYResto :: Int -> Int -> (Int,Int)
@@ -91,18 +91,114 @@ empiezaConM _ = False
 
 --c
 vieneDespues :: DiaDeSemana -> DiaDeSemana -> Bool
-vieneDespues Lunes _ = False
-vieneDespues _ Lunes  = True
-vieneDespues Martes _ = False
-vieneDespues Miercoles _ = False
-vieneDespues Jueves _ = False
-vieneDespues Viernes _ = False
-vieneDespues Sabado _ = False
-vieneDespues Domingo _ = True
-vieneDespues _ Domingo = False
+vieneDespues d1 d2 = 
+   numeroDia d1 > numeroDia d2 
+   
+
+numeroDia :: DiaDeSemana -> Int
+numeroDia Lunes = 1
+numeroDia Martes = 2
+numeroDia Miercoles = 3
+numeroDia Jueves = 4
+numeroDia Viernes = 5
+numeroDia Sabado = 6
+numeroDia Domingo = 7
 
 --d
 estaEnElMedio :: DiaDeSemana -> Bool
 estaEnElMedio Lunes = False
 estaEnElMedio Domingo = False
 estaEnElMedio _ = True
+
+
+-- TIPOS ENUMERATIVOS 2)
+--a
+negar :: Bool -> Bool
+negar True = False
+negar False = True
+
+--b
+implica :: Bool -> Bool -> Bool 
+implica _ True = True
+implica _ _ = False
+
+--c
+yTambien :: Bool -> Bool -> Bool
+yTambien False _ = False
+yTambien _ False = False
+yTambien _ _ = False
+
+--d
+oBien :: Bool -> Bool -> Bool
+oBien True _ = True
+oBien _ True = True
+oBien _ _ = False
+
+{-
+oBien :: Bool -> Bool -> Bool
+oBien True _ = True
+oBien _ True = True
+oBien _ _ = False
+-}
+
+-- 4 REGISTROS
+data Persona = 
+    P String Int
+    --Nombre Edad
+    deriving Show
+
+nombre :: Persona -> String
+nombre (P n e) = n
+
+-- esta bien pero consultar como declarar variables
+
+edad :: Persona -> Int
+edad (P n e) = e
+
+crecer :: Persona -> Persona
+crecer (P n e) = P n (e+1)
+
+cambioDeNombre :: String -> Persona -> Persona
+cambioDeNombre nombreNuevo (P n e) = P nombreNuevo e
+
+esMayorQueLaOtra :: Persona -> Persona -> Bool
+esMayorQueLaOtra  (P n1 e1) (P n2 e2) =
+                 if e1 > e2
+                    then True
+                    else False
+
+laQueEsMayor :: Persona -> Persona -> Persona
+laQueEsMayor  p1 p2 =
+                 if esMayorQueLaOtra p1 p2
+                    then p1
+                    else p2
+
+
+-- 4 REGISTROS 2
+data Pokemon = 
+    Pokemon TipoPokemon Int
+    --      tipo        porcentaje energia
+    deriving Show
+
+data TipoPokemon = Agua | Fuego | Planta
+   deriving Show
+
+data Entrenador = 
+    Ent String Pokemon Pokemon
+    -- nombre  pokemon1 pokemon2
+    deriving Show
+
+
+tipo :: Pokemon -> TipoPokemon
+tipo (Pokemon t e)  = t 
+
+superaA :: Pokemon -> Pokemon -> Bool
+superaA (Pokemon t1 e1) (Pokemon t2 e2) = superaATipo t1 t2
+
+superaATipo :: TipoPokemon-> TipoPokemon -> Bool
+superaATipo Agua Fuego = True
+superaATipo Fuego Planta = True
+superaATipo Planta Agua = True
+superaATipo _ _ = False
+
+
