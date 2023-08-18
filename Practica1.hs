@@ -201,4 +201,61 @@ superaATipo Fuego Planta = True
 superaATipo Planta Agua = True
 superaATipo _ _ = False
 
+--d
+cantidadDePokemonDe :: TipoPokemon -> Entrenador -> Int
+cantidadDePokemonDe tipoPok entrenador =  (unoSiCoincide tipoPok (tipo(pokemon1 entrenador))) 
+                                        + (unoSiCoincide tipoPok (tipo(pokemon2 entrenador))) 
 
+unoSiCoincide :: TipoPokemon -> TipoPokemon -> Int
+unoSiCoincide Agua Agua = 1
+unoSiCoincide Fuego Fuego = 1
+unoSiCoincide Planta Planta = 1
+unoSiCoincide _ _ = 0 
+
+pokemon1 :: Entrenador -> Pokemon
+pokemon1 (Ent nombre pokemon1 pokemon2) = pokemon1
+
+pokemon2 :: Entrenador -> Pokemon
+pokemon2 (Ent nombre pokemon1 pokemon2) = pokemon2
+
+--c
+juntarPokemon :: (Entrenador, Entrenador) -> [Pokemon]
+juntarPokemon (ent1, ent2) = [(pokemon1 ent1), (pokemon2 ent1), (pokemon1 ent2), (pokemon2 ent2)] 
+
+-- 5. FUNCIONES POLIMORFICAS
+
+-- 1 a)
+
+loMismo :: a -> a
+loMismo a = a
+
+siempreSiete :: a -> Int
+siempreSiete a = 7
+
+swap :: (a,b) -> (b, a)
+swap (a,b) = (b,a)
+
+--2
+-- Las funciones son polimorficas porque no estan sujetas a un tipo especifico 
+
+-- PATTERN MATCHING SOBRE LISTAS
+
+--2
+estaVacia :: [a] -> Bool
+estaVacia [] = True
+estaVacia _ = False 
+
+--3
+elPrimero :: [a] -> a
+elPrimero (a : _) = a
+elPrimero _ =  error "no se puede usar con []"
+
+
+--4
+sinElPrimero :: [a] -> [a]
+sinElPrimero ( _ : x) = (x)
+sinElPrimero _ =  error "no se puede usar con []"
+
+--5
+splitHead :: [a] -> (a, [a])
+splitHead a = ((elPrimero a) , (sinElPrimero a))
