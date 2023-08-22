@@ -9,6 +9,7 @@ sumar n m = n+m
 
 --c)
 divisionYResto :: Int -> Int -> (Int,Int)
+--PRECONDICION: el parametro m no puede ser 0
 divisionYResto n m = (div n m, mod n m)
 
 --d)
@@ -30,7 +31,6 @@ sucesor (maxDelPar (divisionYResto  (sucesor 8)(sumar 0 1 )))
 
 
 -- TIPOS ENUMERATIVOS 1)
-
 
 data Dir = Norte | Este | Sur | Oeste
  deriving Show
@@ -120,6 +120,7 @@ negar False = True
 --b
 implica :: Bool -> Bool -> Bool 
 implica _ True = True
+implica False _ = True
 implica _ _ = False
 
 --c
@@ -134,12 +135,6 @@ oBien True _ = True
 oBien _ True = True
 oBien _ _ = False
 
-{-
-oBien :: Bool -> Bool -> Bool
-oBien True _ = True
-oBien _ True = True
-oBien _ _ = False
--}
 
 -- 4 REGISTROS
 data Persona = 
@@ -150,7 +145,6 @@ data Persona =
 nombre :: Persona -> String
 nombre (P n e) = n
 
--- esta bien pero consultar como declarar variables
 
 edad :: Persona -> Int
 edad (P n e) = e
@@ -247,15 +241,18 @@ estaVacia _ = False
 
 --3
 elPrimero :: [a] -> a
+-- PRECONDICION : la lista no debe ser vacia
 elPrimero (a : _) = a
 elPrimero _ =  error "no se puede usar con []"
 
 
 --4
 sinElPrimero :: [a] -> [a]
+-- PRECONDICION : la lista no debe ser vacia
 sinElPrimero ( _ : x) = (x)
 sinElPrimero _ =  error "no se puede usar con []"
 
 --5
 splitHead :: [a] -> (a, [a])
+-- PRECONDICION : la lista no debe ser vacia
 splitHead a = ((elPrimero a) , (sinElPrimero a))
