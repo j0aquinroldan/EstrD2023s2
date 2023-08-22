@@ -229,6 +229,12 @@ siempreSiete a = 7
 swap :: (a,b) -> (b, a)
 swap (a,b) = (b,a)
 
+{-
+¾Por qué existen dos variables de tipo diferentes?
+porque las tuplas permiten elementos de distinto tipo, ademas de que de esta forma se pueden 
+utilizar justamente argumentos de distinto tipo, la funcion no esta atada aa un solo tipo.
+-}
+
 --2
 -- Las funciones son polimorficas porque no estan sujetas a un tipo especifico 
 
