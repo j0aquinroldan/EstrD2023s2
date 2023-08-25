@@ -147,7 +147,7 @@ edad :: Persona -> Int
 edad (P _ e) = e
 
 crecer :: Persona -> Persona
-crecer (P n e) = P n (e+1)
+crecer (P n e) = P n (e+1) 
 
 cambioDeNombre :: String -> Persona -> Persona
 cambioDeNombre nombreNuevo (P n e) = P nombreNuevo e
