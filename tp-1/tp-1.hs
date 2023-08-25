@@ -115,25 +115,22 @@ estaEnElMedio _ = True
 --a
 negar :: Bool -> Bool
 negar True = False
-negar False = True
+negar _ = True
 
 --b
 implica :: Bool -> Bool -> Bool 
-implica _ True = True
+implica True b = b
 implica False _ = True
-implica _ _ = False
 
 --c
 yTambien :: Bool -> Bool -> Bool
-yTambien False _ = False
-yTambien _ False = False
+yTambien True True = True
 yTambien _ _ = False
 
 --d
 oBien :: Bool -> Bool -> Bool
-oBien True _ = True
-oBien _ True = True
-oBien _ _ = False
+oBien False False= False
+oBien _ _ = True
 
 
 -- 4 REGISTROS
@@ -143,11 +140,11 @@ data Persona =
     deriving Show
 
 nombre :: Persona -> String
-nombre (P n e) = n
+nombre (P n _) = n
 
 
 edad :: Persona -> Int
-edad (P n e) = e
+edad (P _ e) = e
 
 crecer :: Persona -> Persona
 crecer (P n e) = P n (e+1)
@@ -156,11 +153,9 @@ cambioDeNombre :: String -> Persona -> Persona
 cambioDeNombre nombreNuevo (P n e) = P nombreNuevo e
 
 esMayorQueLaOtra :: Persona -> Persona -> Bool
-esMayorQueLaOtra  (P n1 e1) (P n2 e2) =
-                 if e1 > e2
-                    then True
-                    else False
-
+esMayorQueLaOtra  p1 p2 = edad p1 > edad p2
+                    
+                    
 laQueEsMayor :: Persona -> Persona -> Persona
 laQueEsMayor  p1 p2 =
                  if esMayorQueLaOtra p1 p2
@@ -184,10 +179,10 @@ data Entrenador =
 
 
 tipo :: Pokemon -> TipoPokemon
-tipo (Pokemon t e)  = t 
+tipo (Pokemon t _)  = t 
 
 superaA :: Pokemon -> Pokemon -> Bool
-superaA (Pokemon t1 e1) (Pokemon t2 e2) = superaATipo t1 t2
+superaA (Pokemon t1 _) (Pokemon t2 _) = superaATipo t1 t2
 
 superaATipo :: TipoPokemon-> TipoPokemon -> Bool
 superaATipo Agua Fuego = True
@@ -197,37 +192,41 @@ superaATipo _ _ = False
 
 --d
 cantidadDePokemonDe :: TipoPokemon -> Entrenador -> Int
-cantidadDePokemonDe tipoPok entrenador =  (unoSiCoincide tipoPok (tipo(pokemon1 entrenador))) 
-                                        + (unoSiCoincide tipoPok (tipo(pokemon2 entrenador))) 
+cantidadDePokemonDe tipoPok entrenador =  fromEnum (coincideTipo tipoPok (pokemon1 entrenador))
+                                        + fromEnum (coincideTipo tipoPok (pokemon2 entrenador)) 
 
-unoSiCoincide :: TipoPokemon -> TipoPokemon -> Int
-unoSiCoincide Agua Agua = 1
-unoSiCoincide Fuego Fuego = 1
-unoSiCoincide Planta Planta = 1
-unoSiCoincide _ _ = 0 
+coincideTipo :: TipoPokemon->Pokemon-> Bool
+coincideTipo  Agua   (Pokemon Agua _)   = True
+coincideTipo  Fuego  (Pokemon Fuego _)  = True
+coincideTipo  Planta (Pokemon Planta _) = True
+coincideTipo _ _ = False
+
 
 pokemon1 :: Entrenador -> Pokemon
-pokemon1 (Ent nombre pokemon1 pokemon2) = pokemon1
+pokemon1 (Ent _ pokemon1 _) = pokemon1
 
 pokemon2 :: Entrenador -> Pokemon
-pokemon2 (Ent nombre pokemon1 pokemon2) = pokemon2
+pokemon2 (Ent _ _ pokemon2) = pokemon2
 
 --c
 juntarPokemon :: (Entrenador, Entrenador) -> [Pokemon]
-juntarPokemon (ent1, ent2) = [(pokemon1 ent1), (pokemon2 ent1), (pokemon1 ent2), (pokemon2 ent2)] 
+juntarPokemon (ent1, ent2) = pokemonesDe ent1 ++ pokemonesDe ent2
+
+pokemonesDe :: Entrenador -> [Pokemon]
+pokemonesDe e = [pokemon1 e, pokemon2 e ]
 
 -- 5. FUNCIONES POLIMORFICAS
 
 -- 1 a)
 
 loMismo :: a -> a
-loMismo a = a
+loMismo x = x
 
 siempreSiete :: a -> Int
-siempreSiete a = 7
+siempreSiete x = 7
 
 swap :: (a,b) -> (b, a)
-swap (a,b) = (b,a)
+swap (x,y) = (y,x)
 
 {-
 ¾Por qué existen dos variables de tipo diferentes?
@@ -248,17 +247,17 @@ estaVacia _ = False
 --3
 elPrimero :: [a] -> a
 -- PRECONDICION : la lista no debe ser vacia
-elPrimero (a : _) = a
+elPrimero (x : _) = x
 elPrimero _ =  error "no se puede usar con []"
 
 
 --4
 sinElPrimero :: [a] -> [a]
 -- PRECONDICION : la lista no debe ser vacia
-sinElPrimero ( _ : x) = (x)
+sinElPrimero ( _ : xs) = (xs)
 sinElPrimero _ =  error "no se puede usar con []"
 
 --5
 splitHead :: [a] -> (a, [a])
 -- PRECONDICION : la lista no debe ser vacia
-splitHead a = ((elPrimero a) , (sinElPrimero a))
+splitHead xs = (elPrimero xs , sinElPrimero xs)
