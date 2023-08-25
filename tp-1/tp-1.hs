@@ -192,8 +192,8 @@ superaATipo _ _ = False
 
 --d
 cantidadDePokemonDe :: TipoPokemon -> Entrenador -> Int
-cantidadDePokemonDe tipoPok entrenador =  fromEnum (coincideTipo tipoPok (pokemon1 entrenador))
-                                        + fromEnum (coincideTipo tipoPok (pokemon2 entrenador)) 
+cantidadDePokemonDe tipoPok (Ent _ p1 p2) =  fromEnum (coincideTipo tipoPok p1)
+                                        + fromEnum (coincideTipo tipoPok p2) 
 
 coincideTipo :: TipoPokemon->Pokemon-> Bool
 coincideTipo  Agua   (Pokemon Agua _)   = True
@@ -201,19 +201,12 @@ coincideTipo  Fuego  (Pokemon Fuego _)  = True
 coincideTipo  Planta (Pokemon Planta _) = True
 coincideTipo _ _ = False
 
-
-pokemon1 :: Entrenador -> Pokemon
-pokemon1 (Ent _ pokemon1 _) = pokemon1
-
-pokemon2 :: Entrenador -> Pokemon
-pokemon2 (Ent _ _ pokemon2) = pokemon2
-
 --c
 juntarPokemon :: (Entrenador, Entrenador) -> [Pokemon]
 juntarPokemon (ent1, ent2) = pokemonesDe ent1 ++ pokemonesDe ent2
 
 pokemonesDe :: Entrenador -> [Pokemon]
-pokemonesDe e = [pokemon1 e, pokemon2 e ]
+pokemonesDe (Ent _ p1 p2) = [p1, p2 ]
 
 -- 5. FUNCIONES POLIMORFICAS
 
