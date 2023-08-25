@@ -184,41 +184,110 @@ elMasViejo (p:ps) = if ((edad p) > (edad (elMasViejo ps)))
                     else elMasViejo ps
 
 
---2. Modicaremos la representación de Entreador y Pokemon de la práctica anterior de la siguiente manera:
+--2. Modificaremos la representación de Entreador y Pokemon de la práctica anterior de la siguiente manera:
 
-data TipoDePokemon = Agua | Fuego | Planta
+data TipoDePokemon = Agua | Fuego | Planta deriving Show
 
-data Pokemon = ConsPokemon TipoDePokemon Int
+data Pokemon = ConsPokemon TipoDePokemon Int deriving Show
 
-data Entrenador = ConsEntrenador String [Pokemon]
+tipo :: Pokemon -> TipoDePokemon
+tipo (ConsPokemon t _)  = t 
+
+data Entrenador = ConsEntrenador String [Pokemon] deriving Show
 
 cantPokemon :: Entrenador -> Int
 --Devuelve la cantidad de Pokémon que posee el entrenador.
-cantPokemon (ConsEntrenador n ps) = longitud ps
+cantPokemon (ConsEntrenador _ ps) = longitud ps
 
 cantPokemonDe :: TipoDePokemon -> Entrenador -> Int
 --Devuelve la cantidad de Pokémon de determinado tipo que posee el entrenador.
-cantPokemonDe 
+cantPokemonDe t (ConsEntrenador _ ps) = longitud (pokemonesDeTipo t ps)
 
---cuantosDeTipo_De_LeGananATodosLosDe_ :: TipoDePokemon -> Entrenador -> Entrenador -> Int
+pokemonesDeTipo :: TipoDePokemon -> [Pokemon] -> [Pokemon]
+pokemonesDeTipo t [] = []
+pokemonesDeTipo t (p:ps) = if   coincideTipo t p
+                           then p : pokemonesDeTipo t ps
+                           else pokemonesDeTipo t ps
+
+coincideTipo :: TipoDePokemon->Pokemon-> Bool
+coincideTipo  Agua   (ConsPokemon Agua _)   = True
+coincideTipo  Fuego  (ConsPokemon Fuego _)  = True
+coincideTipo  Planta (ConsPokemon Planta _) = True
+coincideTipo _ _ = False
+
+
+----------------------
+poke1 =ConsPokemon Planta 5
+poke2 = ConsPokemon Agua 5
+poke3= ConsPokemon Fuego 5
+poke4= ConsPokemon Fuego 5
+
+poks1 = [poke1, poke2] 
+poks2 = [poke3, poke4]
+
+poksMaster = [poke1, poke2, poke3]
+
+ent1 = ConsEntrenador "j" poks1
+ent2 =ConsEntrenador "a" poks2
+ent3 =ConsEntrenador "a" poksMaster
+
+cuantosDeTipo_De_LeGananATodosLosDe_ :: TipoDePokemon -> Entrenador -> Entrenador -> Int
 --Dados dos entrenadores, indica la cantidad de Pokemon de cierto tipo, que le ganarían a los Pokemon del segundo entrenador.
---esMaestroPokemon :: Entrenador -> Bool
---Dado un entrenador, devuelve True si posee al menos un Pokémon de cada tipo posible.
+cuantosDeTipo_De_LeGananATodosLosDe_ t (ConsEntrenador _ ps1) (ConsEntrenador _ ps2) = 
+    longitud (pokemonesDeTipo_De_LeGananATodosLosDe_ t ps1 ps2)
 
+
+
+
+pokemonesDeTipo_De_LeGananATodosLosDe_ :: TipoDePokemon -> [Pokemon] -> [Pokemon] -> [Pokemon]
+--Dados dos entrenadores, devuelve los Pokemones de cierto tipo, que le ganarían a los Pokemon del segundo entrenador.
+pokemonesDeTipo_De_LeGananATodosLosDe_ t [] ps2 = []
+pokemonesDeTipo_De_LeGananATodosLosDe_ t ps1 ps2 = 
+             pokemonesDe_QueSuperanATodosLosDe_ (pokemonesDeTipo t ps1) ps2
+
+
+pokemonesDe_QueSuperanATodosLosDe_ :: [Pokemon] -> [Pokemon] -> [Pokemon]
+--Dados dos [Pokemon], devuelve los Pokemones de la 1era que superan a los de la segunda.
+pokemonesDe_QueSuperanATodosLosDe_    []    ps2 = []
+pokemonesDe_QueSuperanATodosLosDe_ (p1:ps1) ps2 = if (superaATodos p1 ps2)
+                                                  then p1 : (pokemonesDe_QueSuperanATodosLosDe_ ps1 ps2)
+                                                  else (pokemonesDe_QueSuperanATodosLosDe_ ps1 ps2)
+
+superaATodos :: Pokemon -> [Pokemon] -> Bool
+superaATodos p1 []=  True
+superaATodos p1 (p2:ps2) = superaA p1 p2 && superaATodos p1 ps2
+
+superaA :: Pokemon -> Pokemon -> Bool
+superaA (ConsPokemon t1 _) (ConsPokemon t2 _) = superaATipo t1 t2
+
+superaATipo :: TipoDePokemon-> TipoDePokemon -> Bool
+superaATipo Agua Fuego = True
+superaATipo Fuego Planta = True
+superaATipo Planta Agua = True
+superaATipo _ _ = False
+
+------------------ REVISAR
+esMaestroPokemon :: Entrenador -> Bool
+--Dado un entrenador, devuelve True si posee al menos un Pokémon de cada tipo posible.
+esMaestroPokemon (ConsEntrenador _ []) = True
+esMaestroPokemon (ConsEntrenador _ ps)= existePokDeTipo_ Agua ps && 
+                                        existePokDeTipo_ Fuego ps &&  
+                                        existePokDeTipo_ Planta ps 
+
+
+existePokDeTipo_ :: TipoDePokemon-> [Pokemon]-> Bool
+existePokDeTipo_ _ []= False
+existePokDeTipo_ t (p:ps) = coincideTipo t p || existePokDeTipo_ t ps
 
 {-
-
-
-
-
 3. El tipo de dato Rol representa los roles (desarollo o management) de empleados IT dentro
 de una empresa de software, junto al proyecto en el que se encuentran. Así, una empresa es
-una lista de personas con diferente rol. La denición es la siguiente:
+una lista de personas con diferente rol. La definición es la siguiente:
 data Seniority = Junior | SemiSenior | Senior
 data Proyecto = ConsProyecto String
 data Rol = Developer Seniority Proyecto | Management Seniority Proyecto
 data Empresa = ConsEmpresa [Rol]
-Denir las siguientes funciones sobre el tipo Empresa:
+Definir las siguientes funciones sobre el tipo Empresa:
 proyectos :: Empresa -> [Proyecto]
 Dada una empresa denota la lista de proyectos en los que trabaja, sin elementos repetidos.
 losDevSenior :: Empresa -> [Proyecto] -> Int
@@ -229,6 +298,4 @@ Indica la cantidad de empleados que trabajan en alguno de los proyectos dados.
 asignadosPorProyecto :: Empresa -> [(Proyecto, Int)]
 Devuelve una lista de pares que representa a los proyectos (sin repetir) junto con su
 cantidad de personas involucradas.
-
-
 -}
