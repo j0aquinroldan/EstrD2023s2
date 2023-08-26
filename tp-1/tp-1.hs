@@ -192,8 +192,12 @@ superaATipo _ _ = False
 
 --d
 cantidadDePokemonDe :: TipoPokemon -> Entrenador -> Int
-cantidadDePokemonDe tipoPok (Ent _ p1 p2) =  fromEnum (coincideTipo tipoPok p1)
-                                        + fromEnum (coincideTipo tipoPok p2) 
+cantidadDePokemonDe tipoPok (Ent _ p1 p2) =  boolToInt (coincideTipo tipoPok p1)
+                                           + boolToInt (coincideTipo tipoPok p2) 
+
+boolToInt :: Bool -> Int
+boolToInt True = 1
+boolToInt _ = 0
 
 coincideTipo :: TipoPokemon->Pokemon-> Bool
 coincideTipo  Agua   (Pokemon Agua _)   = True
