@@ -279,23 +279,134 @@ existePokDeTipo_ :: TipoDePokemon-> [Pokemon]-> Bool
 existePokDeTipo_ _ []= False
 existePokDeTipo_ t (p:ps) = coincideTipo t p || existePokDeTipo_ t ps
 
+
 {-
 3. El tipo de dato Rol representa los roles (desarollo o management) de empleados IT dentro
 de una empresa de software, junto al proyecto en el que se encuentran. Así, una empresa es
 una lista de personas con diferente rol. La definición es la siguiente:
-data Seniority = Junior | SemiSenior | Senior
-data Proyecto = ConsProyecto String
-data Rol = Developer Seniority Proyecto | Management Seniority Proyecto
-data Empresa = ConsEmpresa [Rol]
-Definir las siguientes funciones sobre el tipo Empresa:
-proyectos :: Empresa -> [Proyecto]
-Dada una empresa denota la lista de proyectos en los que trabaja, sin elementos repetidos.
-losDevSenior :: Empresa -> [Proyecto] -> Int
-Dada una empresa indica la cantidad de desarrolladores senior que posee, que pertecen
-además a los proyectos dados por parámetro.
-cantQueTrabajanEn :: [Proyecto] -> Empresa -> Int
-Indica la cantidad de empleados que trabajan en alguno de los proyectos dados.
-asignadosPorProyecto :: Empresa -> [(Proyecto, Int)]
-Devuelve una lista de pares que representa a los proyectos (sin repetir) junto con su
-cantidad de personas involucradas.
 -}
+
+data Seniority = Junior | SemiSenior | Senior deriving Show
+data Proyecto = ConsProyecto String deriving Show
+data Rol = Developer Seniority Proyecto | Management Seniority Proyecto deriving Show
+data Empresa = ConsEmpresa [Rol]
+
+proy1 = ConsProyecto "a"
+proy2 = ConsProyecto "b"
+rol1 = Developer Senior proy1
+rol2 = Management SemiSenior proy2
+rol3 = Management Senior proy1
+
+proyectos :: Empresa -> [Proyecto]
+--Dada una empresa denota la lista de proyectos en los que trabaja, sin elementos repetidos.
+proyectos (ConsEmpresa []) = []
+proyectos (ConsEmpresa rs)  =  sinProyectosRepetidos (proyectosRoles rs)
+
+
+sinProyectosRepetidos :: [Proyecto] ->[Proyecto]
+-- devuelve la lista de proyectos sin repetidos
+sinProyectosRepetidos [] = []
+sinProyectosRepetidos (p:ps) = if not (pertenece (nombreProyecto p) (nombresProyectos ps))
+                               then p : sinProyectosRepetidos ps
+                               else sinProyectosRepetidos ps
+
+
+nombresProyectos :: [Proyecto] ->[String]
+-- devuelve todos los nombre de los proyectos 
+nombresProyectos [] = []
+nombresProyectos (p:ps) = nombreProyecto p : nombresProyectos ps
+
+nombreProyecto :: Proyecto -> String
+nombreProyecto (ConsProyecto s) = s
+
+proyectosRoles :: [Rol] -> [Proyecto]
+-- devuelve todos los proyectos de todos los roles (con repetidos)
+proyectosRoles [] = []
+proyectosRoles (r:rs) =  proyecto r : proyectosRoles rs
+                        
+
+proyecto :: Rol -> Proyecto
+proyecto (Developer _ p) = p
+proyecto (Management _ p) = p
+
+----------------------
+
+cantidadDevSenior :: Empresa -> [Proyecto] -> Int
+--Dada una empresa indica la CANTIDAD de desarrolladores senior que posee, que pertecen
+--además a los proyectos dados por parámetro.
+cantidadDevSenior e ps = longitud (losDevSenior e ps)
+
+
+losDevSenior :: Empresa -> [Proyecto] -> [Rol]
+--Dada una empresa los desarrolladores senior que posee, que pertecen
+--además a los proyectos dados por parámetro.
+losDevSenior (ConsEmpresa rs) ps =  soloDev (soloSenior (losQueTrabajanEnProyectos rs ps))
+
+
+losQueTrabajanEnProyectos :: [Rol] -> [Proyecto] -> [Rol]
+-- dado una lista de roles devuelve solo aquellos que pertenezcana a los proyectos dados
+losQueTrabajanEnProyectos [] _ = []
+losQueTrabajanEnProyectos (r:rs) ps= if trabajaEnProyectos r ps
+                                    then r : losQueTrabajanEnProyectos rs ps
+                                    else losQueTrabajanEnProyectos rs ps
+
+trabajaEnProyectos :: Rol -> [Proyecto] -> Bool
+-- indica si el rol pertenece a alguno de los proyectos dados
+trabajaEnProyectos _ [] = False
+trabajaEnProyectos r ps = pertenece (nombreProyecto (proyecto r)) (nombresProyectos ps) 
+
+soloSenior :: [Rol] ->[Rol]
+-- filtra solo auqellos que sean senior
+soloSenior [] = []
+soloSenior (r:rs) = if esSenior r 
+                    then r : (soloSenior rs)
+                    else soloSenior rs
+
+esSenior :: Rol -> Bool
+-- indica si es senior
+esSenior (Developer Senior _) = True
+esSenior (Management Senior _) = True
+esSenior _ = False
+
+soloDev :: [Rol] ->[Rol]
+-- filtra solo auqellos que sean dev
+soloDev [] = []
+soloDev (r:rs) = if esDev r 
+                    then r : (soloDev rs)
+                    else soloDev rs
+
+esDev :: Rol -> Bool
+-- indica si es dev
+esDev (Developer _ _) = True
+esDev _ = False
+
+----------------------------------
+cantQueTrabajanEn :: [Proyecto] -> Empresa -> Int
+--Indica la cantidad de empleados que trabajan en alguno de los proyectos dados.
+cantQueTrabajanEn [] _ = 0
+cantQueTrabajanEn (p:ps) (ConsEmpresa rs) = longitud ( losQueTrabajanEnProyectos rs ps)
+
+------------------------------------
+asignadosPorProyectoEnEmpresa :: Empresa -> [(Proyecto, Int)]
+--Devuelve una lista de pares que representa a los proyectos (sin repetir) junto con su
+--cantidad de personas involucradas, DENTRO DE UNA EMPRESA DADA POR PARAMETRO
+asignadosPorProyectoEnEmpresa (ConsEmpresa rs) = asignadosPorProyecto (proyectosRoles rs )
+
+
+asignadosPorProyecto :: [Proyecto] -> [(Proyecto, Int)]
+--Devuelve una lista de pares que representa a los proyectos (sin repetir) junto con su
+--cantidad de personas involucradas, DENTRO DE UNA LISTA DE PROYECTOS DADA POR PARAMETROS
+asignadosPorProyecto ps = subtarea (sinProyectosRepetidos ps) ps
+
+subtarea ::[Proyecto] -> [Proyecto]-> [(Proyecto, Int)]
+subtarea   []   _   = []
+subtarea   _   []  = []
+subtarea (p:ps) ps2 = (p , aparicionesProyectos p ps2) : (subtarea ps ps2)
+
+--(p , 1 + aparicionesProyectos p ps) : asignadosPorProyecto ps
+
+aparicionesProyectos :: Proyecto -> [Proyecto] -> Int
+aparicionesProyectos p1 ps = apariciones (nombreProyecto p1) (nombresProyectos ps)
+
+
+ -- proyecto , cantQueTrabajanEn proyecto e)
