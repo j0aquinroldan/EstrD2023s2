@@ -300,16 +300,13 @@ rol3 = Management Senior proy1
 proyectos :: Empresa -> [Proyecto]
 --Dada una empresa denota la lista de proyectos en los que trabaja, sin elementos repetidos.
 proyectos (ConsEmpresa []) = []
-proyectos (ConsEmpresa rs)  =  sinProyectosRepetidos (proyectosRoles rs)
+proyectos (ConsEmpresa rs)  =  sinProyectosRepetidos (proyectosDeRoles rs)
 
 
 sinProyectosRepetidos :: [Proyecto] ->[Proyecto]
 -- devuelve la lista de proyectos sin repetidos
 sinProyectosRepetidos [] = []
-sinProyectosRepetidos (p:ps) = if not (pertenece (nombreProyecto p) (nombresProyectos ps))
-                               then p : sinProyectosRepetidos ps
-                               else sinProyectosRepetidos ps
-
+sinProyectosRepetidos (p:ps) = singularSi (not (pertenece (nombreProyecto p) (nombresProyectos ps))) p ++ sinProyectosRepetidos ps
 
 nombresProyectos :: [Proyecto] ->[String]
 -- devuelve todos los nombre de los proyectos 
@@ -319,10 +316,10 @@ nombresProyectos (p:ps) = nombreProyecto p : nombresProyectos ps
 nombreProyecto :: Proyecto -> String
 nombreProyecto (ConsProyecto s) = s
 
-proyectosRoles :: [Rol] -> [Proyecto]
+proyectosDeRoles :: [Rol] -> [Proyecto]
 -- devuelve todos los proyectos de todos los roles (con repetidos)
-proyectosRoles [] = []
-proyectosRoles (r:rs) =  proyecto r : proyectosRoles rs
+proyectosDeRoles [] = []
+proyectosDeRoles (r:rs) =  proyecto r : proyectosDeRoles rs
                         
 
 proyecto :: Rol -> Proyecto
@@ -334,33 +331,41 @@ proyecto (Management _ p) = p
 cantidadDevSenior :: Empresa -> [Proyecto] -> Int
 --Dada una empresa indica la CANTIDAD de desarrolladores senior que posee, que pertecen
 --además a los proyectos dados por parámetro.
-cantidadDevSenior e ps = longitud (losDevSenior e ps)
+cantidadDevSenior (ConsEmpresa rs) ps = longitud (losDevSenior rs ps)
+-- cantidadDevSenior (ConsEmpresa rs) ps = longitud (soloDev (soloSenior (losQueTrabajanEnProyectos rs ps))
 
-
-losDevSenior :: Empresa -> [Proyecto] -> [Rol]
+losDevSenior :: [Rol] -> [Proyecto] -> [Rol]
 --Dada una empresa los desarrolladores senior que posee, que pertecen
 --además a los proyectos dados por parámetro.
-losDevSenior (ConsEmpresa rs) ps =  soloDev (soloSenior (losQueTrabajanEnProyectos rs ps))
+losDevSenior  rs ps =  soloDev (soloSenior (losQueTrabajanEnProyectos rs ps))
 
 
 losQueTrabajanEnProyectos :: [Rol] -> [Proyecto] -> [Rol]
 -- dado una lista de roles devuelve solo aquellos que pertenezcana a los proyectos dados
 losQueTrabajanEnProyectos [] _ = []
-losQueTrabajanEnProyectos (r:rs) ps= if trabajaEnProyectos r ps
-                                    then r : losQueTrabajanEnProyectos rs ps
-                                    else losQueTrabajanEnProyectos rs ps
+losQueTrabajanEnProyectos (r:rs) ps=  (singularSi (trabajaEnProyectos r ps) r) ++ losQueTrabajanEnProyectos rs ps
+
+singularSi :: Bool-> a -> [a]
+singularSi True x = [x] 
+singularSi _ _ = [] 
 
 trabajaEnProyectos :: Rol -> [Proyecto] -> Bool
 -- indica si el rol pertenece a alguno de los proyectos dados
 trabajaEnProyectos _ [] = False
-trabajaEnProyectos r ps = pertenece (nombreProyecto (proyecto r)) (nombresProyectos ps) 
+trabajaEnProyectos r (p: ps) = trabajaEn r p || trabajaEnProyectos r ps
+
+trabajaEn ::  Rol -> Proyecto ->Bool
+trabajaEn r p = mismoProyecto (proyecto r) p
+
+mismoProyecto :: Proyecto ->   Proyecto -> Bool
+mismoProyecto p1 p2 = nombreProyecto p1 == nombreProyecto p2
+
 
 soloSenior :: [Rol] ->[Rol]
 -- filtra solo auqellos que sean senior
 soloSenior [] = []
-soloSenior (r:rs) = if esSenior r 
-                    then r : (soloSenior rs)
-                    else soloSenior rs
+soloSenior (r:rs) =  singularSi (esSenior r ) r ++ soloSenior rs
+   
 
 esSenior :: Rol -> Bool
 -- indica si es senior
@@ -371,9 +376,7 @@ esSenior _ = False
 soloDev :: [Rol] ->[Rol]
 -- filtra solo auqellos que sean dev
 soloDev [] = []
-soloDev (r:rs) = if esDev r 
-                    then r : (soloDev rs)
-                    else soloDev rs
+soloDev (r:rs) = (singularSi (esDev r ) r) ++ soloDev rs
 
 esDev :: Rol -> Bool
 -- indica si es dev
@@ -383,15 +386,15 @@ esDev _ = False
 ----------------------------------
 cantQueTrabajanEn :: [Proyecto] -> Empresa -> Int
 --Indica la cantidad de empleados que trabajan en alguno de los proyectos dados.
-cantQueTrabajanEn [] _ = 0
 cantQueTrabajanEn (p:ps) (ConsEmpresa rs) = longitud ( losQueTrabajanEnProyectos rs ps)
 
 ------------------------------------
 asignadosPorProyectoEnEmpresa :: Empresa -> [(Proyecto, Int)]
 --Devuelve una lista de pares que representa a los proyectos (sin repetir) junto con su
 --cantidad de personas involucradas, DENTRO DE UNA EMPRESA DADA POR PARAMETRO
-asignadosPorProyectoEnEmpresa (ConsEmpresa rs) = asignadosPorProyecto (proyectosRoles rs )
+asignadosPorProyectoEnEmpresa (ConsEmpresa rs) = asignadosPorProyecto (proyectosDeRoles rs )
 
+-- 
 
 asignadosPorProyecto :: [Proyecto] -> [(Proyecto, Int)]
 --Devuelve una lista de pares que representa a los proyectos (sin repetir) junto con su
