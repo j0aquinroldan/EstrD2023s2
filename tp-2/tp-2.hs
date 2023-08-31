@@ -266,7 +266,7 @@ superaATipo Fuego Planta = True
 superaATipo Planta Agua = True
 superaATipo _ _ = False
 
------------------- REVISAR
+
 esMaestroPokemon :: Entrenador -> Bool
 --Dado un entrenador, devuelve True si posee al menos un Pokémon de cada tipo posible.
 esMaestroPokemon (ConsEntrenador _ []) = True
@@ -332,7 +332,7 @@ cantidadDevSenior :: Empresa -> [Proyecto] -> Int
 --Dada una empresa indica la CANTIDAD de desarrolladores senior que posee, que pertecen
 --además a los proyectos dados por parámetro.
 cantidadDevSenior (ConsEmpresa rs) ps = longitud (losDevSenior rs ps)
--- cantidadDevSenior (ConsEmpresa rs) ps = longitud (soloDev (soloSenior (losQueTrabajanEnProyectos rs ps))
+
 
 losDevSenior :: [Rol] -> [Proyecto] -> [Rol]
 --Dada una empresa los desarrolladores senior que posee, que pertecen
@@ -394,7 +394,6 @@ asignadosPorProyectoEnEmpresa :: Empresa -> [(Proyecto, Int)]
 --cantidad de personas involucradas, DENTRO DE UNA EMPRESA DADA POR PARAMETRO
 asignadosPorProyectoEnEmpresa (ConsEmpresa rs) = asignadosPorProyecto (proyectosDeRoles rs )
 
--- 
 
 asignadosPorProyecto :: [Proyecto] -> [(Proyecto, Int)]
 --Devuelve una lista de pares que representa a los proyectos (sin repetir) junto con su
@@ -408,10 +407,9 @@ asignadosEnLosProyectos_   []   _   = []
 asignadosEnLosProyectos_   _   []  = []
 asignadosEnLosProyectos_ (p:ps) ps2 = (p , aparicionesProyecto p ps2) : (asignadosEnLosProyectos_ ps ps2)
 
---(p , 1 + aparicionesProyecto p ps) : asignadosPorProyecto ps
 
 aparicionesProyecto :: Proyecto -> [Proyecto] -> Int
 aparicionesProyecto p1 ps = apariciones (nombreProyecto p1) (nombresProyectos ps)
 
 
- -- proyecto , cantQueTrabajanEn proyecto e)
+ 
