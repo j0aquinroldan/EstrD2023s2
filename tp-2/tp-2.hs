@@ -399,17 +399,19 @@ asignadosPorProyectoEnEmpresa (ConsEmpresa rs) = asignadosPorProyecto (proyectos
 asignadosPorProyecto :: [Proyecto] -> [(Proyecto, Int)]
 --Devuelve una lista de pares que representa a los proyectos (sin repetir) junto con su
 --cantidad de personas involucradas, DENTRO DE UNA LISTA DE PROYECTOS DADA POR PARAMETROS
-asignadosPorProyecto ps = subtarea (sinProyectosRepetidos ps) ps
+asignadosPorProyecto ps = asignadosEnLosProyectos_ (sinProyectosRepetidos ps) ps
 
-subtarea ::[Proyecto] -> [Proyecto]-> [(Proyecto, Int)]
-subtarea   []   _   = []
-subtarea   _   []  = []
-subtarea (p:ps) ps2 = (p , aparicionesProyectos p ps2) : (subtarea ps ps2)
+asignadosEnLosProyectos_ ::[Proyecto] -> [Proyecto]-> [(Proyecto, Int)]
+-- A partir de una lista de proyectos devuelve las personas involucradas en la segund lista de 
+-- proyectos
+asignadosEnLosProyectos_   []   _   = []
+asignadosEnLosProyectos_   _   []  = []
+asignadosEnLosProyectos_ (p:ps) ps2 = (p , aparicionesProyecto p ps2) : (asignadosEnLosProyectos_ ps ps2)
 
---(p , 1 + aparicionesProyectos p ps) : asignadosPorProyecto ps
+--(p , 1 + aparicionesProyecto p ps) : asignadosPorProyecto ps
 
-aparicionesProyectos :: Proyecto -> [Proyecto] -> Int
-aparicionesProyectos p1 ps = apariciones (nombreProyecto p1) (nombresProyectos ps)
+aparicionesProyecto :: Proyecto -> [Proyecto] -> Int
+aparicionesProyecto p1 ps = apariciones (nombreProyecto p1) (nombresProyectos ps)
 
 
  -- proyecto , cantQueTrabajanEn proyecto e)
