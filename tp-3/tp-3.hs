@@ -54,8 +54,8 @@ ponerN n c celda = Bolita c (ponerN (n-1) c celda)
 
 --1.2. Camino hacia el tesoro
 
-data Objeto = Cacharro | Tesoro
-data Camino = Fin | Cofre [Objeto] Camino | Nada Camino
+data Objeto = Cacharro | Tesoro deriving Show
+data Camino = Fin | Cofre [Objeto] Camino | Nada Camino deriving Show
 
 hayTesoro :: Camino -> Bool
 --Indica si hay un cofre con un tesoro en el camino
@@ -76,6 +76,7 @@ cam2 = Nada cam1
 cam3 = Fin
 cam4 = Cofre [Cacharro, Tesoro] Fin
 cam5 = Nada cam4
+cam6 = Nada cam5
 
 -----------------------
 pasosHastaTesoro :: Camino -> Int
@@ -109,14 +110,148 @@ tesorosEnCofre [] = 0
 tesorosEnCofre (obj:objs) = unoSi(esTesoro obj) + tesorosEnCofre objs
 
 -----------------------
-(desafío) cantTesorosEntre :: Int -> Int -> Camino -> Int
-Dado un rango de pasos, indica la cantidad de tesoros que hay en ese rango. Por ejemplo, si
-el rango es 3 y 5, indica la cantidad de tesoros que hay entre hacer 3 pasos y hacer 5. Están
-incluidos tanto 3 como 5 en el resultado.
+cantTesorosEntre :: Int -> Int -> Camino -> Int
+--Dado un rango de pasos, indica la cantidad de tesoros que hay en ese rango.
+-- Precondicion: n1<n2
+cantTesorosEntre n1 n2 c = if   n1<n2
+                           then cantTesorosHasta n2 (caminoSinPrimeros_ n1 c)
+                           else error "el primer int debe ser menor que el segundo int"
+
+caminoSinPrimeros_ :: Int -> Camino -> Camino
+-- devulve el camino sin los primeros n pasos
+caminoSinPrimeros_ 0 c = c
+caminoSinPrimeros_ _ Fin = Fin
+caminoSinPrimeros_ n (Nada c) = caminoSinPrimeros_ (n-1) c
+caminoSinPrimeros_ n (Cofre objs c) = caminoSinPrimeros_ (n-1) c
+
+
+cantTesorosHasta ::  Int-> Camino -> Int
+-- Devuelve cuantos tesoros hay hasta los pasos dados por parametro
+cantTesorosHasta _ Fin = 0
+cantTesorosHasta 0 c = unoSi(hayTesoroEn 0 c)
+cantTesorosHasta n (Nada c) = cantTesorosHasta (n-1) c
+cantTesorosHasta n (Cofre objs c ) = tesorosEnCofre objs + cantTesorosHasta (n-1) c
+
+----------------------
+--2. Tipos arbóreos
+--2.1. Árboles binarios
+
+
+data Tree a = EmptyT | NodeT a (Tree a) (Tree a) deriving Show
+
+arb1 = EmptyT 
+arb2 = NodeT 1 (arb1) (arb1)
+arb3 = NodeT 3  (arb1) (arb2)
+
+--1. 
+sumarT :: Tree Int -> Int
+--Dado un árbol binario de enteros devuelve la suma entre sus elementos.
+sumarT EmptyT = 0
+sumarT (NodeT n t1 t2)= n + sumarT t1 + sumarT t2  
+
+-- CONSULTAR INT VS INTEGER
+
+--2. 
+sizeT :: Tree a -> Int
+--Dado un árbol binario devuelve su cantidad de elementos
+sizeT EmptyT = 0
+sizeT (NodeT n t1 t2)= 1 + sizeT t1 + sizeT t2  
+
+--3. 
+mapDobleT :: Tree Int -> Tree Int
+--Dado un árbol de enteros devuelve un árbol con el doble de cada número.
+--mapDobleT (EmptyT) = 0
+mapDobleT (NodeT n t1 t2)= (NodeT (n*2) (mapDobleT t1) (mapDobleT t2))  
+--REVISAR
+
+
+--4. 
+perteneceT :: Eq a => a -> Tree a -> Bool
+--Dados un elemento y un árbol binario devuelve True si existe un elemento igual a ese en el
+--árbol.
+perteneceT _ EmptyT = False
+perteneceT x1 (NodeT x2 t1 t2) = x1 == x2 || perteneceT x1 t1 || perteneceT x1 t2
+
+--5. 
+aparicionesT :: Eq a => a -> Tree a -> Int
+--Dados un elemento e y un árbol binario devuelve la cantidad de elementos del árbol que son
+--iguales a e.
+aparicionesT _ EmptyT = 0
+aparicionesT x1 (NodeT x2 t1 t2) = unoSi(x1==x2) + aparicionesT x1 t1 + aparicionesT x1 t2 
+
+--6. 
+leaves :: Tree a -> [a]
+--Dado un árbol devuelve los elementos que se encuentran en sus hojas.
+leaves EmptyT = []
+leaves (NodeT x t1 t2) = x : leaves t1 ++ leaves t2
+
+
+--7. 
+heightT :: Tree a -> Int
+--Dado un árbol devuelve su altura.
+heightT EmptyT = 0
+heightT (NodeT x t1 t2) = 1 + heightT t1 + heightT t2 
+
+--8. 
+mirrorT :: Tree a -> Tree a
+--Dado un árbol devuelve el árbol resultante de intercambiar el hijo izquierdo con el derecho,
+--en cada nodo del árbol.
+mirrorT EmptyT = EmptyT
+mirrorT (NodeT x t1 t2) = NodeT x (mirrorT t2) (mirrorT t1)
+
+
+--9. 
+toList :: Tree a -> [a]
+--Dado un árbol devuelve una lista que representa el resultado de recorrerlo en modo in-order.
+toList EmptyT = []
+toList (NodeT x t1 t2) = leaves t1 ++ [x] ++ leaves t2
+
+--10. 
+levelN :: Int -> Tree a -> [a]
+--Dados un número n y un árbol devuelve una lista con los nodos de nivel n. El nivel de un
+--nodo es la distancia que hay de la raíz hasta él. La distancia de la raiz a sí misma es 0, y la
+--distancia de la raiz a uno de sus hijos es 1.
+--Nota: El primer nivel de un árbol (su raíz) es 0.
+levelN _ EmptyT = []
+levelN 0 (NodeT x _ _) = [x]
+levelN n (NodeT x t1 t2) =  levelN (n-1) t1 ++ levelN (n-1) t2
+
+
+--11. 
+listPerLevel :: Tree a -> [[a]]
+--Dado un árbol devuelve una lista de listas en la que cada elemento representa un nivel de
+--dicho árbol.
+listPerLevel EmptyT = []
+listPerLevel (NodeT x t1 t2) =  [levelN 1 (NodeT x t1 t2)] ++ listPerLevel t1 ++ listPerLevel t2
+-- CONSULTAR POR LISTAS VACIAS
+
+
+--12. 
+ramaMasLarga :: Tree a -> [a]
+--Devuelve los elementos de la rama más larga del árbol
+ramaMasLarga EmptyT = []
+ramaMasLarga (NodeT x t1 t2) = if   heightT t1 > heightT t2
+                               then x : ramaMasLarga t1
+                               else x : ramaMasLarga t2
+
+--13. 
+todosLosCaminos :: Tree a -> [[a]]
+--Dado un árbol devuelve todos los caminos, es decir, los caminos desde la raíz hasta cualquiera
+--de los nodos.
+todosLosCaminos EmptyT = []
+todosLosCaminos (NodeT x t1 t2) =  [x] : todosLosCaminos t1  ++
+                                          todosLosCaminos t2
+
+--REVISAR
 
 {-
+(NodeT 1 (NodeT 2 (NodeT 3 EmptyT EmptyT)
+EmptyT)
+(NodeT 4 (NodeT 5 EmptyT EmptyT)
+EmptyT))
 
-.
+
+
 
 
 
