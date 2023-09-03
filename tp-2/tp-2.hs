@@ -23,9 +23,7 @@ conjuncion (x:xs) = x && conjuncion xs
 --5. 
 disyuncion :: [Bool] -> Bool
 disyuncion []= False
-disyuncion (x:xs) = if x
-                    then True
-                    else disyuncion xs
+disyuncion (x:xs) = x || disyuncion xs
 
 
 --6. 
