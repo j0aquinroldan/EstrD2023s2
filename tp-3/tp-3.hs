@@ -253,8 +253,61 @@ EmptyT))
 
 
 
+Implementar las siguientes funciones utilizando el esquema de recursión estructural sobre Exp:
+1. eval :: ExpA -> -> Int
+Dada una expresión aritmética devuelve el resultado evaluarla.
+2. simplificar :: ExpA -> ExpA
+Dada una expresión aritmética, la simplica según los siguientes criterios (descritos utilizando
+notación matemática convencional):
+
+a) 0 + x = x + 0 = x
+b) 0 * x = x * 0 = 0
+c) 1 * x = x * 1 = x
+d) - (- x) = x
+
+-}
+
+--2.2. Expresiones Aritméticas
+data ExpA = Valor Int | Sum ExpA ExpA | Prod ExpA ExpA | Neg ExpA
 
 
+--1. 
+eval :: ExpA -> Int
+--Dada una expresión aritmética devuelve el resultado evaluarla.
+eval (Valor n) = n
+eval (Neg e)   = (- eval e)
+eval (Sum e1 e2) = eval e1 + eval e2
+eval (Prod e1 e2) = eval e1 * eval e2
 
+
+exp1 = Prod (Valor 2) (Valor 3)
+exp2 = Sum (Valor 2) (Valor 3)
+exp3 = Valor 3
+exp4 = Neg (Valor 2) 
+exp5 = Neg (Prod exp2 exp1)
+
+
+--2. 
+simplificar :: ExpA -> ExpA
+--Dada una expresión aritmética, la simplica según los siguientes criterios (descritos utilizando
+--notación matemática convencional):
+
+simplificar (Neg e)      =
+simplificar (Sum 0 e2)  = e2
+simplificar (Sum e1 0)  = e1
+simplificar (Prod _ 0) = 0
+simplificar (Prod 0 _) = 0
+simplificar (Prod 1 e2)  = e2
+simplificar (Prod e1 1)  = e1
+simplificar e   = e
+
+
+                             
+
+{-
+a) 0 + x = x + 0 = x
+b) 0 * x = x * 0 = 0
+c) 1 * x = x * 1 = x
+d) - (- x) = x
 
 -}
