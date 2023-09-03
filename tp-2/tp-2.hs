@@ -18,9 +18,7 @@ sucesores (x:xs)= (x+1) : (sucesores xs)
 --4. 
 conjuncion :: [Bool] -> Bool
 conjuncion []= True
-conjuncion (x:xs) = if x
-                    then conjuncion xs
-                    else False
+conjuncion (x:xs) = x && conjuncion xs
 
 --5. 
 disyuncion :: [Bool] -> Bool
