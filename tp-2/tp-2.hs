@@ -35,10 +35,8 @@ aplanar (x:xs) =  x ++ aplanar xs
 --7. 
 pertenece :: Eq a => a -> [a] -> Bool
 pertenece e [] = False
-pertenece e (x:xs) = if (e == x)
-                     then True
-                     else pertenece e xs
-
+pertenece e (x:xs) = (e == x) || pertenece e xs
+                     
 
 --8. 
 apariciones :: Eq a => a -> [a] -> Int
