@@ -114,7 +114,9 @@ cuentaRegresiva :: Int -> [Int]
 --Dado un número n devuelve una lista cuyos elementos sean los números comprendidos entre
 --n y 1 (incluidos). Si el número es inferior a 1, devuelve la lista vacía.
 cuentaRegresiva 0 = []
-cuentaRegresiva n = n : cuentaRegresiva (n-1)
+cuentaRegresiva n = if n < 0
+                    then []
+                    else n : cuentaRegresiva (n-1)
 
 --3. 
 repetir :: Int -> a -> [a]
