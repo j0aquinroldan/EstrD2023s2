@@ -97,7 +97,7 @@ hayTesoroEn n c = pasosHastaTesoro c == n
 -------------------
 
 alMenosNTesoros :: Int -> Camino -> Bool
---Indica si hay al menos n tesoros en el camino.
+--Indica si hay al menos n tesoros en el camino. PRECON: n debe ser mayor a 0 
 alMenosNTesoros n c = cantTesoros c >= n
 
 cantTesoros :: Camino -> Int
@@ -140,8 +140,8 @@ cantTesorosHasta n (Cofre objs c ) = tesorosEnCofre objs + cantTesorosHasta (n-1
 data Tree a = EmptyT | NodeT a (Tree a) (Tree a) deriving Show
 
 arb1 = EmptyT 
-arb2 = NodeT 1 (arb1) (arb1)
-arb3 = NodeT 3  (arb1) (arb2)
+arb2 = NodeT (1::Int) (arb1) (arb1)
+arb3 = NodeT (3::Int)  (arb1) (arb2)
 
 --1. 
 sumarT :: Tree Int -> Int
@@ -149,7 +149,7 @@ sumarT :: Tree Int -> Int
 sumarT EmptyT = 0
 sumarT (NodeT n t1 t2)= n + sumarT t1 + sumarT t2  
 
--- CONSULTAR INT VS INTEGER
+
 
 --2. 
 sizeT :: Tree a -> Int
@@ -160,9 +160,8 @@ sizeT (NodeT n t1 t2)= 1 + sizeT t1 + sizeT t2
 --3. 
 mapDobleT :: Tree Int -> Tree Int
 --Dado un árbol de enteros devuelve un árbol con el doble de cada número.
---mapDobleT (EmptyT) = 0
+mapDobleT (EmptyT) = EmptyT
 mapDobleT (NodeT n t1 t2)= (NodeT (n*2) (mapDobleT t1) (mapDobleT t2))  
---REVISAR
 
 
 --4. 
@@ -183,8 +182,13 @@ aparicionesT x1 (NodeT x2 t1 t2) = unoSi(x1==x2) + aparicionesT x1 t1 + aparicio
 leaves :: Tree a -> [a]
 --Dado un árbol devuelve los elementos que se encuentran en sus hojas.
 leaves EmptyT = []
-leaves (NodeT x t1 t2) = x : leaves t1 ++ leaves t2
+leaves (NodeT x t1 t2) = if esVacio t1 && esVacio t2
+                         then [x]
+                         else leaves t1 ++ leaves t2
 
+esVacio :: Tree a -> Bool
+esVacio EmptyT = True
+esVacio _ = False
 
 --7. 
 heightT :: Tree a -> Int
@@ -211,7 +215,6 @@ levelN :: Int -> Tree a -> [a]
 --Dados un número n y un árbol devuelve una lista con los nodos de nivel n. El nivel de un
 --nodo es la distancia que hay de la raíz hasta él. La distancia de la raiz a sí misma es 0, y la
 --distancia de la raiz a uno de sus hijos es 1.
---Nota: El primer nivel de un árbol (su raíz) es 0.
 levelN _ EmptyT = []
 levelN 0 (NodeT x _ _) = [x]
 levelN n (NodeT x t1 t2) =  levelN (n-1) t1 ++ levelN (n-1) t2
@@ -222,7 +225,7 @@ listPerLevel :: Tree a -> [[a]]
 --Dado un árbol devuelve una lista de listas en la que cada elemento representa un nivel de
 --dicho árbol.
 listPerLevel EmptyT = []
-listPerLevel (NodeT x t1 t2) =  [levelN 1 (NodeT x t1 t2)] ++ listPerLevel t1 ++ listPerLevel t2
+listPerLevel (NodeT n t1 t2) =  [levelN 1 (NodeT n t1 t2)] ++ listPerLevel t1 ++ listPerLevel t2
 -- CONSULTAR POR LISTAS VACIAS
 
 
@@ -239,8 +242,13 @@ todosLosCaminos :: Tree a -> [[a]]
 --Dado un árbol devuelve todos los caminos, es decir, los caminos desde la raíz hasta cualquiera
 --de los nodos.
 todosLosCaminos EmptyT = []
-todosLosCaminos (NodeT x t1 t2) =  [x] : todosLosCaminos t1  ++
-                                          todosLosCaminos t2
+todosLosCaminos (NodeT x t1 t2) =  agregarACada x (todosLosCaminos t1  ++ todosLosCaminos t2)
+
+agregarACada :: a -> [[a]] -> [[a]]
+agregarACada x [] = [[x]]
+agregarACada x (ys : yss) = (x : ys) : (agregarACada x yss)
+
+
 
 --REVISAR
 
@@ -253,17 +261,6 @@ EmptyT))
 
 
 
-Implementar las siguientes funciones utilizando el esquema de recursión estructural sobre Exp:
-1. eval :: ExpA -> -> Int
-Dada una expresión aritmética devuelve el resultado evaluarla.
-2. simplificar :: ExpA -> ExpA
-Dada una expresión aritmética, la simplica según los siguientes criterios (descritos utilizando
-notación matemática convencional):
-
-a) 0 + x = x + 0 = x
-b) 0 * x = x * 0 = 0
-c) 1 * x = x * 1 = x
-d) - (- x) = x
 
 -}
 
@@ -288,18 +285,18 @@ exp5 = Neg (Prod exp2 exp1)
 
 
 --2. 
-simplificar :: ExpA -> ExpA
+--simplificar :: ExpA -> ExpA
 --Dada una expresión aritmética, la simplica según los siguientes criterios (descritos utilizando
 --notación matemática convencional):
 
-simplificar (Neg e)      =
-simplificar (Sum 0 e2)  = e2
-simplificar (Sum e1 0)  = e1
-simplificar (Prod _ 0) = 0
-simplificar (Prod 0 _) = 0
-simplificar (Prod 1 e2)  = e2
-simplificar (Prod e1 1)  = e1
-simplificar e   = e
+--simplificar (Neg e)      =
+--simplificar (Sum 0 e2)  = e2
+--simplificar (Sum e1 0)  = e1
+--simplificar (Prod _ 0) = 0
+--simplificar (Prod 0 _) = 0
+--simplificar (Prod 1 e2)  = e2
+--simplificar (Prod e1 1)  = e1
+--simplificar e   = e
 
 
                              
