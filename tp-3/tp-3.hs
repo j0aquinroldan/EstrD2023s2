@@ -265,7 +265,7 @@ EmptyT))
 -}
 
 --2.2. Expresiones Aritméticas
-data ExpA = Valor Int | Sum ExpA ExpA | Prod ExpA ExpA | Neg ExpA
+data ExpA = Valor Int | Sum ExpA ExpA | Prod ExpA ExpA | Neg ExpA deriving Show
 
 
 --1. 
@@ -277,27 +277,39 @@ eval (Sum e1 e2) = eval e1 + eval e2
 eval (Prod e1 e2) = eval e1 * eval e2
 
 
-exp1 = Prod (Valor 2) (Valor 3)
-exp2 = Sum (Valor 2) (Valor 3)
+exp1 = Prod (Valor 2) (Valor 1)
+exp2 = Sum (Valor 2) (Valor 0)
 exp3 = Valor 3
 exp4 = Neg (Valor 2) 
-exp5 = Neg (Prod exp2 exp1)
+exp5 = Neg (Neg exp2)
 
 
---2. 
---simplificar :: ExpA -> ExpA
---Dada una expresión aritmética, la simplica según los siguientes criterios (descritos utilizando
+
+simplificar :: ExpA -> ExpA
+--Dada una expresión aritmética, la simplifica según los siguientes criterios (descritos utilizando
 --notación matemática convencional):
 
---simplificar (Neg e)      =
---simplificar (Sum 0 e2)  = e2
---simplificar (Sum e1 0)  = e1
---simplificar (Prod _ 0) = 0
---simplificar (Prod 0 _) = 0
---simplificar (Prod 1 e2)  = e2
---simplificar (Prod e1 1)  = e1
---simplificar e   = e
+simplificar (Valor n) = Valor n
+simplificar (Neg e)   = Neg (simplificar e)
+simplificar (Sum e1 e2)  = simplificarSum (Sum e1 e2)
+simplificar (Prod e1 e2) = simplificarProducto (Prod e1 e2)
 
+
+simplificarSum :: ExpA-> ExpA
+simplificarSum (Sum e1 e2)  = if (eval e1) == 0
+                           then e2
+                           else if (eval e2) == 0
+                                then e1
+                                else (Sum e1 e2)
+
+simplificarProducto :: ExpA -> ExpA
+simplificarProducto (Prod e1 e2) = if (eval e1) == 0 || (eval e2) == 0 
+                           then (Valor 0)
+                           else if (eval e1) == 1
+                                then e2
+                                else if (eval e2) == 1
+                                    then e1
+                                    else (Prod e1 e2)
 
                              
 
