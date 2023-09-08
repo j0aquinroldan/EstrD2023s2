@@ -2,17 +2,10 @@
 
 --1. Tipos recursivos simples
 --1.1. Celdas con bolitas
---Representaremos una celda con bolitas de colores rojas y azules, de la siguiente manera:
+
 data Color = Azul | Rojo deriving Show
 data Celda = Bolita Color Celda | CeldaVacia deriving Show
 
-{-
-En dicha representación, la cantidad de apariciones de un determinado color denota la cantidad
-de bolitas de ese color en la celda. Por ejemplo, una celda con 2 bolitas azules y 2 rojas, podría
-ser la siguiente:
-Bolita Rojo (Bolita Azul (Bolita Rojo (Bolita Azul CeldaVacia)))
-Implementar las siguientes funciones sobre celdas:
--}
 
 celda1 = CeldaVacia
 celda2 = Bolita Rojo celda1
@@ -226,7 +219,7 @@ listPerLevel :: Tree a -> [[a]]
 --dicho árbol.
 listPerLevel EmptyT = []
 listPerLevel (NodeT n t1 t2) =  [levelN 1 (NodeT n t1 t2)] ++ listPerLevel t1 ++ listPerLevel t2
--- CONSULTAR POR LISTAS VACIAS
+
 
 
 --12. 
@@ -248,21 +241,6 @@ agregarACada :: a -> [[a]] -> [[a]]
 agregarACada x [] = [[x]]
 agregarACada x (ys : yss) = (x : ys) : (agregarACada x yss)
 
-
-
---REVISAR
-
-{-
-(NodeT 1 (NodeT 2 (NodeT 3 EmptyT EmptyT)
-EmptyT)
-(NodeT 4 (NodeT 5 EmptyT EmptyT)
-EmptyT))
-
-
-
-
-
--}
 
 --2.2. Expresiones Aritméticas
 data ExpA = Valor Int | Sum ExpA ExpA | Prod ExpA ExpA | Neg ExpA deriving Show
@@ -286,8 +264,7 @@ exp5 = Neg (Neg exp2)
 
 
 simplificar :: ExpA -> ExpA
---Dada una expresión aritmética, la simplifica según los siguientes criterios (descritos utilizando
---notación matemática convencional):
+--Dada una expresión aritmética, la simplifica según los siguientes criterios 
 
 simplificar (Valor n) = Valor n
 simplificar (Neg e)   = Neg (simplificar e)
@@ -312,11 +289,3 @@ simplificarProducto (Prod e1 e2) = if (eval e1) == 0 || (eval e2) == 0
                                     else (Prod e1 e2)
 
                              
-
-{-
-a) 0 + x = x + 0 = x
-b) 0 * x = x * 0 = 0
-c) 1 * x = x * 1 = x
-d) - (- x) = x
-
--}
