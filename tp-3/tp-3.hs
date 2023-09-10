@@ -175,9 +175,9 @@ aparicionesT x1 (NodeT x2 t1 t2) = unoSi(x1==x2) + aparicionesT x1 t1 + aparicio
 leaves :: Tree a -> [a]
 --Dado un árbol devuelve los elementos que se encuentran en sus hojas.
 leaves EmptyT = []
-leaves (NodeT x t1 t2) = if esVacio t1 && esVacio t2
-                         then [x]
-                         else leaves t1 ++ leaves t2
+leaves (NodeT x EmptyT EmptyT) = [x]
+leaves (NodeT _ t1 t2) = leaves t1 ++ leaves t2
+
 
 esVacio :: Tree a -> Bool
 esVacio EmptyT = True
