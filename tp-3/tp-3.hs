@@ -224,8 +224,6 @@ listPerLevel :: Tree a -> [[a]]
 listPerLevel EmptyT = []
 listPerLevel (NodeT n t1 t2) =  [levelN 0 (NodeT n t1 t2)] ++ zipWithAppend (listPerLevel t1)  (listPerLevel t2)
 
-
-
 zipWithAppend :: [[a]]-> [[a]]->[[a]]
 zipWithAppend [] ys = ys
 zipWithAppend xs [] = xs
@@ -276,9 +274,9 @@ simplificar :: ExpA -> ExpA
 --Dada una expresión aritmética, la simplifica según los siguientes criterios 
 
 simplificar (Valor n) = Valor n
-simplificar (Neg e)   = Neg (simplificar e)
-simplificar (Sum e1 e2)  = simplificarSum (Sum e1 e2)
-simplificar (Prod e1 e2) = simplificarProducto (Prod e1 e2)
+simplificar (Neg e)   = simplificarNeg  (Neg (simplificar e))
+simplificar (Sum e1 e2)  = simplificarSum (Sum (simplificar e1) (simplificar e2))
+simplificar (Prod e1 e2) = simplificarProducto (Prod (simplificar e1) (simplificar e2))
 
 
 simplificarSum :: ExpA-> ExpA
@@ -298,3 +296,6 @@ simplificarProducto (Prod e1 e2) = if (eval e1) == 0 || (eval e2) == 0
                                     else (Prod e1 e2)
 
                              
+simplificarNeg :: ExpA -> ExpA
+simplificarNeg (Neg (Neg exp)) = exp
+simplificarNeg exp             = exp
