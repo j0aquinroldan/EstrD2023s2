@@ -105,10 +105,10 @@ tesorosEnCofre (obj:objs) = unoSi(esTesoro obj) + tesorosEnCofre objs
 -----------------------
 cantTesorosEntre :: Int -> Int -> Camino -> Int
 --Dado un rango de pasos, indica la cantidad de tesoros que hay en ese rango.
--- Precondicion: n1<n2
-cantTesorosEntre n1 n2 c = if   n1<n2
-                           then cantTesorosHasta n2 (caminoSinPrimeros_ n1 c)
-                           else error "el primer int debe ser menor que el segundo int"
+-- Precondicion: n1<=n2
+cantTesorosEntre n1 n2 c = if   n1<=n2
+                           then cantTesorosHasta n2 (caminoSinPrimeros_ (n1) c)
+                           else error "el primer int debe ser menor o igual que el segundo int"
 
 caminoSinPrimeros_ :: Int -> Camino -> Camino
 -- devulve el camino sin los primeros n pasos
