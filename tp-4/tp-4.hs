@@ -82,19 +82,17 @@ Denir las siguientes operaciones:
 
 
 
-4. caminoDeLaRamaMasLarga :: Mapa -> [Dir]
-Indica el camino de la rama más larga.
-5. tesorosPorNivel :: Mapa -> [[Objeto]]
-Devuelve los tesoros separados por nivel en el árbol.
+
+
 6. todosLosCaminos :: Mapa -> [[Dir]]
 Devuelve todos lo caminos en el mapa.
 
 -}
 
-data Dir = Izq | Der
-data Objeto = Tesoro | Chatarra
-data Cofre = Cofre [Objeto]
-data Mapa = Fin Cofre | Bifurcacion Cofre Mapa Mapa
+data Dir = Izq | Der deriving Show
+data Objeto = Tesoro | Chatarra deriving Show
+data Cofre = Cofre [Objeto] deriving Show
+data Mapa = Fin Cofre | Bifurcacion Cofre Mapa Mapa deriving Show
 
 c1 = Cofre [Chatarra, Chatarra]
 c2 = Cofre [Chatarra, Chatarra,Tesoro]
@@ -102,6 +100,9 @@ c2 = Cofre [Chatarra, Chatarra,Tesoro]
 m1 = Fin c1
 m2 = Fin c2
 m3 = Bifurcacion c1 m1 m2
+m4 = Bifurcacion c1 m3 m1
+m5 = Bifurcacion c2 m3 m1
+
 
 --1. 
 hayTesoro :: Mapa -> Bool
@@ -147,3 +148,35 @@ caminoAlTesoro (Bifurcacion c m1 m2) = if hayTesoroEnCofre c
                                         else  if hayTesoro m1
                                               then Izq : caminoAlTesoro m1
                                               else Der : caminoAlTesoro m2
+
+
+--4.
+caminoDeLaRamaMasLarga :: Mapa -> [Dir]
+--Indica el camino de la rama más larga.
+caminoDeLaRamaMasLarga (Fin _) = []
+caminoDeLaRamaMasLarga (Bifurcacion _ m1 m2) = if heightT m1 > heightT m2 
+                                               then Izq : caminoDeLaRamaMasLarga m1 
+                                               else Der : caminoDeLaRamaMasLarga m2
+
+
+heightT :: Mapa -> Int
+--Dado un árbol devuelve su altura.
+heightT (Fin _) = 0
+heightT (Bifurcacion _ m1 m2) = 1 + heightT m1 + heightT m2 
+
+--5. 
+tesorosPorNivel :: Mapa -> [[Objeto]]
+--Devuelve los tesoros separados por nivel en el árbol.
+tesorosPorNivel (Fin c) = [tesorosEnElCofre c]
+tesorosPorNivel (Bifurcacion c m1 m2)= tesorosEnElCofre c : tesorosPorNivel m1 ++ tesorosPorNivel m2
+
+tesorosEnElCofre :: Cofre -> [Objeto]
+tesorosEnElCofre (Cofre objs) = tesoros objs
+
+tesoros :: [Objeto]->[Objeto]
+tesoros [] = []
+tesoros (obj:objs) = singularSi obj (esTesoro obj) ++ tesoros objs
+
+singularSi :: a->Bool->[a]
+singularSi x True = [x]
+singularSi _ _ = []
