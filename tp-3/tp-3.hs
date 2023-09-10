@@ -35,8 +35,8 @@ sacar :: Color -> Celda -> Celda
 --Gobstones, esta función es total.
 sacar _ CeldaVacia = CeldaVacia
 sacar c (Bolita c2 celda) =  if mismoColor c c2 
-                             then celda
-                             else (Bolita c2 celda)
+                             then sacar c celda
+                             else (Bolita c2 (sacar c celda))
 
 
 ponerN :: Int -> Color -> Celda -> Celda
