@@ -135,6 +135,7 @@ data Tree a = EmptyT | NodeT a (Tree a) (Tree a) deriving Show
 arb1 = EmptyT 
 arb2 = NodeT (1::Int) (arb1) (arb1)
 arb3 = NodeT (3::Int)  (arb1) (arb2)
+arb4 = NodeT (3::Int)  (arb3) (arb2)
 
 --1. 
 sumarT :: Tree Int -> Int
@@ -187,7 +188,10 @@ esVacio _ = False
 heightT :: Tree a -> Int
 --Dado un árbol devuelve su altura.
 heightT EmptyT = 0
-heightT (NodeT x t1 t2) = 1 + heightT t1 + heightT t2 
+heightT (NodeT x t1 t2) = if heightT t1 > heightT t2
+                         then heightT t1 + 1
+                         else heightT t2 + 1
+
 
 --8. 
 mirrorT :: Tree a -> Tree a
