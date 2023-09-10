@@ -77,7 +77,7 @@ pasosHastaTesoro :: Camino -> Int
 --Si un cofre con un tesoro está al principio del camino, la cantidad de pasos a recorrer es 0.
 --Precondición: tiene que haber al menos un tesoro.
 pasosHastaTesoro Fin = error "No hay tesoro"
-pasosHastaTesoro (Cofre objs c) = 0
+pasosHastaTesoro (Cofre objs c) = unoSi(not (existeTesoro objs))
 pasosHastaTesoro (Nada c) = 1 + pasosHastaTesoro c
 
 -------------------
