@@ -135,7 +135,7 @@ data Tree a = EmptyT | NodeT a (Tree a) (Tree a) deriving Show
 arb1 = EmptyT 
 arb2 = NodeT (1::Int) (arb1) (arb1)
 arb3 = NodeT (3::Int)  (arb1) (arb2)
-arb4 = NodeT (3::Int)  (arb3) (arb2)
+arb4 = NodeT (4::Int)  (arb3) (arb2)
 
 --1. 
 sumarT :: Tree Int -> Int
@@ -222,9 +222,14 @@ listPerLevel :: Tree a -> [[a]]
 --Dado un árbol devuelve una lista de listas en la que cada elemento representa un nivel de
 --dicho árbol.
 listPerLevel EmptyT = []
-listPerLevel (NodeT n t1 t2) =  [levelN 1 (NodeT n t1 t2)] ++ listPerLevel t1 ++ listPerLevel t2
+listPerLevel (NodeT n t1 t2) =  [levelN 0 (NodeT n t1 t2)] ++ zipWithAppend (listPerLevel t1)  (listPerLevel t2)
 
 
+
+zipWithAppend :: [[a]]-> [[a]]->[[a]]
+zipWithAppend [] ys = ys
+zipWithAppend xs [] = xs
+zipWithAppend (x:xs) (y:ys) = (x ++ y) : zipWithAppend xs ys
 
 --12. 
 ramaMasLarga :: Tree a -> [a]
