@@ -285,21 +285,18 @@ simplificar (Prod e1 e2) = simplificarProducto (Prod (simplificar e1) (simplific
 
 
 simplificarSum :: ExpA-> ExpA
-simplificarSum (Sum e1 e2)  = if (eval e1) == 0
-                           then e2
-                           else if (eval e2) == 0
-                                then e1
-                                else (Sum e1 e2)
+simplificarSum (Sum   exp1   (Valor 0)) = exp1 
+simplificarSum (Sum (Valor 0)   exp2  ) = exp2
+simplificarSum (Sum   exp1      exp2  ) = (Sum exp1 exp2) 
+simplificarSum          exp             = exp
 
 simplificarProducto :: ExpA -> ExpA
-simplificarProducto (Prod e1 e2) = if (eval e1) == 0 || (eval e2) == 0 
-                           then (Valor 0)
-                           else if (eval e1) == 1
-                                then e2
-                                else if (eval e2) == 1
-                                    then e1
-                                    else (Prod e1 e2)
-
+simplificarProducto (Prod    exp1     (Valor 1)) = exp1
+simplificarProducto (Prod     _       (Valor 0)) = Valor 0
+simplificarProducto (Prod (Valor 1)     exp2   ) = exp2
+simplificarProducto (Prod (Valor 0)     _      ) = Valor 0
+simplificarProducto (Prod    exp1      exp2    ) = (Prod exp1 exp2)
+simplificarProducto exp             = exp
                              
 simplificarNeg :: ExpA -> ExpA
 simplificarNeg (Neg (Neg exp)) = exp
