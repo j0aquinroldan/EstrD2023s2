@@ -72,35 +72,21 @@ cantCapasPorPizza :: [Pizza] -> [(Int, Pizza)]
 cantCapasPorPizza [] = []
 cantCapasPorPizza (p:ps) = (cantidadDeCapas p, p) : cantCapasPorPizza ps
 
-{-
-2. Mapa de tesoros (con bifurcaciones)
-Un mapa de tesoros es un árbol con bifurcaciones que terminan en cofres. Cada bifurcación y
-cada cofre tiene un objeto, que puede ser chatarra o un tesoro.
 
-
-Denir las siguientes operaciones:
-
-
-
-
-
-6. todosLosCaminos :: Mapa -> [[Dir]]
-Devuelve todos lo caminos en el mapa.
-
--}
 
 data Dir = Izq | Der deriving Show
 data Objeto = Tesoro | Chatarra deriving Show
 data Cofre = Cofre [Objeto] deriving Show
 data Mapa = Fin Cofre | Bifurcacion Cofre Mapa Mapa deriving Show
 
-c1 = Cofre [Chatarra, Chatarra]
-c2 = Cofre [Chatarra, Chatarra,Tesoro]
+c0 = Cofre [Chatarra, Chatarra]
+c1 = Cofre [Chatarra, Chatarra,Tesoro]
+c2 = Cofre [Chatarra, Tesoro,Tesoro]
 
-m1 = Fin c1
+m1 = Fin c0
 m2 = Fin c2
-m3 = Bifurcacion c1 m1 m2
-m4 = Bifurcacion c1 m3 m1
+m3 = Bifurcacion c0 m1 m2
+m4 = Bifurcacion c0 m3 m1
 m5 = Bifurcacion c2 m3 m1
 
 
@@ -180,3 +166,230 @@ tesoros (obj:objs) = singularSi obj (esTesoro obj) ++ tesoros objs
 singularSi :: a->Bool->[a]
 singularSi x True = [x]
 singularSi _ _ = []
+
+
+--6.
+todosLosCaminos :: Mapa -> [[Dir]]
+--Devuelve todos lo caminos en el mapa.
+todosLosCaminos (Fin _) = []
+todosLosCaminos (Bifurcacion _ t1 t2) =  (agregarACada Izq (todosLosCaminos t1))  ++ 
+                                         (agregarACada Der (todosLosCaminos t2))
+
+agregarACada :: a -> [[a]] -> [[a]]
+agregarACada x [] = [[x]]
+agregarACada x (ys : yss) = (x : ys) : (agregarACada x yss)
+
+
+
+
+--3. Nave Espacial
+
+data Barril = Comida | Oxigeno | Torpedo | Combustible deriving Show
+data Componente = LanzaTorpedos | Motor Int | Almacen [Barril] deriving Show
+type Tripulante = String
+type SectorId = String 
+data Sector = S SectorId [Componente] [Tripulante] deriving Show
+data Tree a = EmptyT | NodeT a (Tree a) (Tree a) deriving Show
+data Nave = N (Tree Sector) deriving Show
+
+
+comp0 = Almacen [Comida, Oxigeno ]
+comp1 = Almacen [Torpedo, Combustible ]
+
+s0 = S "s0" [Motor 2, LanzaTorpedos, comp0] ["pepe"]
+s1 = S "s1" [Motor 1, LanzaTorpedos,Motor 4, comp1] ["pipi"]
+
+treeSector0 = NodeT s0  EmptyT   EmptyT
+
+n0 = N (EmptyT)
+n1 = N treeSector0
+n2 = N (NodeT s1 treeSector0 EmptyT)
+
+--1. 
+sectores :: Nave -> [SectorId]
+--Propósito: Devuelve todos los sectores de la nave.
+sectores (N (EmptyT)) = []
+sectores (N (NodeT s t1 t2)) = sectorId s : sectores (N t1) ++ sectores (N t2)  
+
+sectorId (S id _ _ ) = id
+
+
+--2. 
+poderDePropulsion :: Nave -> Int
+--Propósito: Devuelve la suma de poder de propulsión de todos los motores de la nave. Nota:
+--el poder de propulsión es el número que acompaña al constructor de motores.
+poderDePropulsion (N(EmptyT)) = 0
+poderDePropulsion (N (NodeT s t1 t2)) = poderSector s + poderDePropulsion (N t1) + poderDePropulsion (N t2)
+
+poderSector :: Sector -> Int
+poderSector (S _ cs _) =  poderComponentes cs
+
+poderComponentes :: [Componente] -> Int
+poderComponentes [] = 0
+poderComponentes (c:cs) = poderMotor c + poderComponentes cs
+
+poderMotor (Motor p) = p
+poderMotor _ = 0
+
+
+--3. 
+barrilesNave :: Nave -> [Barril]
+--Propósito: Devuelve todos los barriles de la nave.
+barrilesNave (N(EmptyT)) = []
+barrilesNave (N (NodeT s t1 t2)) = barrilesSector s ++ barrilesNave (N t1) ++ barrilesNave (N t2)
+
+barrilesSector :: Sector -> [Barril]
+barrilesSector (S _ cs _) =  barrilesComponentes cs
+
+barrilesComponentes :: [Componente] -> [Barril]
+barrilesComponentes [] = []
+barrilesComponentes (c:cs) = barriles c ++ barrilesComponentes cs
+
+barriles (Almacen bs) = bs
+barriles _ = []
+
+--4.  
+agregarASector :: [Componente] -> SectorId -> Nave -> Nave
+--Propósito: Añade una lista de componentes a un sector de la nave.
+--Nota: ese sector puede no existir, en cuyo caso no añade componentes.
+agregarASector cs sId (N ts) = (N (agregarComponentesTree cs sId ts)) 
+
+
+agregarComponentesTree :: [Componente] -> SectorId ->  Tree Sector -> Tree Sector
+agregarComponentesTree _ _ (EmptyT) = (EmptyT)
+agregarComponentesTree cs sId (NodeT s t1 t2) = (NodeT (agregarComponentesSector cs sId s) 
+                                                  (agregarComponentesTree cs sId t1 )
+                                                  (agregarComponentesTree cs sId t2))             
+
+agregarComponentesSector :: [Componente] -> SectorId ->  Sector -> Sector
+agregarComponentesSector cs1 sid (S id cs2 ts) = if sid == id
+                                        then (S id (cs2 ++cs1) ts)
+                                        else (S id cs2 ts)
+                                        
+
+
+
+
+
+--5. 
+asignarTripulanteANave :: Tripulante -> [SectorId] -> Nave -> Nave
+--Propósito: Incorpora un tripulante a una lista de sectores de la nave.
+--Precondición: Todos los id de la lista existen en la nave.--
+asignarTripulanteANave t sIds (N ts) = N (asignarTripulanteATree t sIds ts)
+
+asignarTripulanteATree :: Tripulante -> [SectorId] -> Tree Sector -> Tree Sector
+asignarTripulanteATree _ _ EmptyT =  EmptyT
+asignarTripulanteATree tr sIds (NodeT s1 t1 t2) =NodeT (asignarTripulanteSiCorresponde tr sIds s1)
+                                                       (asignarTripulanteATree tr sIds t1) 
+                                                       (asignarTripulanteATree tr sIds t2)
+
+asignarTripulanteSiCorresponde :: Tripulante -> [SectorId] ->  Sector ->  Sector
+asignarTripulanteSiCorresponde _ [] s = s
+asignarTripulanteSiCorresponde t (sId:sIds) s = if mismoId sId s 
+                                                then asignarTripulanteASector t s
+                                                else asignarTripulanteSiCorresponde t sIds s
+
+asignarTripulanteASector t (S id cs ts) = (S id cs (t:ts))
+
+mismoId sid s = sid == sectorId s
+
+
+
+--6. 
+sectoresAsignadosNave :: Tripulante -> Nave -> [SectorId]
+--Propósito: Devuelve los sectores en donde aparece un tripulante dado dentro de la nave.
+sectoresAsignadosNave tr (N ts) = sectoresAsignadosTree tr ts
+
+sectoresAsignadosTree :: Tripulante -> Tree Sector -> [SectorId]
+--Propósito: Devuelve los sectores en donde aparece un tripulante dado en el arbol de sectores.
+sectoresAsignadosTree _ EmptyT =  []
+sectoresAsignadosTree tr (NodeT s t1 t2)= singularSi (sectorId s) (estaAsignadoEn tr s) ++ 
+                                          sectoresAsignadosTree tr t1 ++ 
+                                          sectoresAsignadosTree tr t2
+   
+estaAsignadoEn :: Tripulante -> Sector -> Bool
+estaAsignadoEn tr (S _ _ trs) = pertenece tr trs
+
+pertenece :: Eq a => a -> [a] -> Bool
+pertenece e [] = False
+pertenece e (x:xs) = (e == x) || pertenece e xs
+
+
+--7. 
+tripulantesNave :: Nave -> [Tripulante]
+--Propósito: Devuelve la lista de tripulantes, sin elementos repetidos
+tripulantesNave (N ts) = tripulantesTree ts
+
+tripulantesTree :: Tree Sector -> [Tripulante]
+tripulantesTree EmptyT = []
+tripulantesTree (NodeT s1 t1 t2) = sinRepetidos (tripulantes s1 ++ tripulantesTree t1 ++ tripulantesTree t2)
+
+sinRepetidos :: Eq a => [a] -> [a]
+sinRepetidos [] = []
+sinRepetidos (x:xs) = if pertenece x xs
+                    then sinRepetidos xs
+                    else x : sinRepetidos xs
+
+tripulantes ::Sector -> [Tripulante]
+tripulantes (S _ _ ts) = ts
+
+
+
+--4. Manada de lobos
+type Presa = String -- nombre de presa
+type Territorio = String -- nombre de territorio
+type Nombre = String -- nombre de lobo
+data Lobo = Cazador Nombre [Presa] Lobo Lobo Lobo | Explorador Nombre [Territorio] Lobo Lobo | Cría Nombre
+data Manada = M Lobo
+
+
+
+--1. Construir un valor de tipo Manada que posea 1 cazador, 2 exploradores y que el resto sean crías. 
+
+
+
+manada0 = M caz1
+caz1 = Cazador "caz" ["conejo"] expl1 expl2 cria0
+expl1 = Explorador "exp" ["Bosque"] cria0 cria0
+expl2 =Explorador "exp2" ["Rios"] cria0 cria0
+cria0 = Cria "cria"
+
+
+--2. 
+buenaCaza :: Manada -> Bool
+--Propósito: dada una manada, indica si la cantidad de alimento cazado es mayor a la cantidad de crías.
+buenaCaza (M lobo) = cantAlimento > cantCrias
+
+esCria Cría _ = True
+esCria _ = False
+
+cantAlimento :: Lobo -> Int
+cantCrias Cazador _ presas l1 l2 l3 = longitud presas + cantAlimento l1 + cantAlimento l2 + cantAlimento l3
+cantCrias Explorador _ _ l1 l2 = cantAlimento l1 + cantAlimento l2
+cantCrias Cría _ = 0
+
+
+buenaCazaLobo :: Lobo -> Bool
+buenaCazaLobo Cazador _ [Presa] l1 l2 l3 
+Explorador _ [Territorio] l1 l2 
+Cría _ =
+
+{-
+
+3. elAlfa :: Manada -> (Nombre, Int)
+Propósito: dada una manada, devuelve el nombre del lobo con más presas cazadas, junto
+con su cantidad de presas. Nota: se considera que los exploradores y crías tienen cero presas
+cazadas, y que podrían formar parte del resultado si es que no existen cazadores con más de
+cero presas.
+4. losQueExploraron :: Territorio -> Manada -> [Nombre]
+Propósito: dado un territorio y una manada, devuelve los nombres de los exploradores que
+pasaron por dicho territorio.
+5. exploradoresPorTerritorio :: Manada -> [(Territorio, [Nombre])]
+Propósito: dada una manada, denota la lista de los pares cuyo primer elemento es un territorio y cuyo segundo elemento es la lista de los nombres de los exploradores que exploraron
+dicho territorio. Los territorios no deben repetirse.
+6. superioresDelCazador :: Nombre -> Manada -> [Nombre]
+Propósito: dado un nombre de cazador y una manada, indica el nombre de todos los
+cazadores que tienen como subordinado al cazador dado (directa o indirectamente).
+Precondición: hay un cazador con dicho nombre y es único
+
+-}
