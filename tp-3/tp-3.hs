@@ -188,10 +188,15 @@ esVacio _ = False
 heightT :: Tree a -> Int
 --Dado un árbol devuelve su altura.
 heightT EmptyT = 0
-heightT (NodeT x t1 t2) = if heightT t1 > heightT t2
-                         then heightT t1 + 1
-                         else heightT t2 + 1
+heightT (NodeT x t1 t2) = heightT (elegirRamaMasLarga t1 t2) + 1
 
+
+elegirRamaMasLarga :: Tree a -> Tree a -> Tree a
+elegirRamaMasLarga EmptyT t2 = t2
+elegirRamaMasLarga t1 EmptyT  = t1
+elegirRamaMasLarga t1 t2 = if heightT t1 > heightT t2
+                         then t1 
+                         else t2 
 
 --8. 
 mirrorT :: Tree a -> Tree a
