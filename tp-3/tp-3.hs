@@ -227,7 +227,7 @@ listPerLevel :: Tree a -> [[a]]
 --Dado un árbol devuelve una lista de listas en la que cada elemento representa un nivel de
 --dicho árbol.
 listPerLevel EmptyT = []
-listPerLevel (NodeT n t1 t2) =  [levelN 0 (NodeT n t1 t2)] ++ zipWithAppend (listPerLevel t1)  (listPerLevel t2)
+listPerLevel (NodeT n t1 t2) =   [n]  : zipWithAppend (listPerLevel t1)  (listPerLevel t2)
 
 zipWithAppend :: [[a]]-> [[a]]->[[a]]
 zipWithAppend [] ys = ys
