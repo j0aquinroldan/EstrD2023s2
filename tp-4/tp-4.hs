@@ -87,8 +87,8 @@ m1 = Fin c0
 m2 = Fin c2
 m3 = Bifurcacion c0 m1 m2
 m4 = Bifurcacion c0 m3 m1
-m5 = Bifurcacion c2 m3 m1
-
+m5 = Bifurcacion c0 m3 m1
+m6 = Bifurcacion c2 m3 m1
 
 --1. 
 hayTesoro :: Mapa -> Bool
@@ -131,7 +131,7 @@ caminoAlTesoro :: Mapa -> [Dir]
 caminoAlTesoro (Fin _ ) = []
 caminoAlTesoro (Bifurcacion c m1 m2) = if hayTesoroEnCofre c
                                        then  []
-                                        else  if hayTesoro m1
+                                       else  if hayTesoro m1
                                               then Izq : caminoAlTesoro m1
                                               else Der : caminoAlTesoro m2
 
@@ -256,17 +256,27 @@ agregarASector cs sId (N ts) = (N (agregarComponentesTree cs sId ts))
 
 
 agregarComponentesTree :: [Componente] -> SectorId ->  Tree Sector -> Tree Sector
-agregarComponentesTree _ _ (EmptyT) = (EmptyT)
+agregarComponentesTree _   _  (EmptyT)        = (EmptyT)
 agregarComponentesTree cs sId (NodeT s t1 t2) = (NodeT (agregarComponentesSector cs sId s) 
-                                                  (agregarComponentesTree cs sId t1 )
-                                                  (agregarComponentesTree cs sId t2))             
+                                                       (agregarComponentesTree cs sId t1 )
+                                                       (agregarComponentesTree cs sId t2))             
 
 agregarComponentesSector :: [Componente] -> SectorId ->  Sector -> Sector
 agregarComponentesSector cs1 sid (S id cs2 ts) = if sid == id
-                                        then (S id (cs2 ++cs1) ts)
-                                        else (S id cs2 ts)
+                                                 then (S id (cs2 ++cs1) ts)
+                                                 else (S id cs2 ts)
                                         
 
+agregarComponentesTree2 :: [Componente] -> SectorId ->  Tree Sector -> Tree Sector
+agregarComponentesTree2 _   _  (EmptyT)        = (EmptyT)
+agregarComponentesTree2 cs sId (NodeT s t1 t2) = if sid == id
+                                                 then (NodeT (agregarComp cs s) t1 t2)
+                                                 else (NodeT s 
+                                                       (agregarComponentesTree cs sId t1 )
+                                                       (agregarComponentesTree cs sId t2))  
+       
+agregarComp cs1 (S id cs2 ts) = (S id (cs2 ++ cs1) ts)
+                                                       
 
 
 
@@ -430,28 +440,54 @@ exploradoresPorTerritorio :: Manada -> [(Territorio, [Nombre])]
 exploradoresPorTerritorio (M l) = exploradoresPorTerritorioL l
 
 exploradoresPorTerritorioL :: Lobo -> [(Territorio, [Nombre])]
-exploradoresPorTerritorioL (Cazador _ _ l1 l2 l3)   = exploradoresPorTerritorioL l1 ++ 
-                                                      exploradoresPorTerritorioL l2 ++ 
-                                                      exploradoresPorTerritorioL l3 
-exploradoresPorTerritorioL (Explorador nom ts l1 l2 )= exploradoresPorTerritorioL l1 ++ 
-                                                       exploradoresPorTerritorioL l2
-exploradoresPorTerritorioL (Cria nom ) = []
+exploradoresPorTerritorioL (Cazador _ _ l1 l2 l3)   = juntarTerriorios ((exploradoresPorTerritorioL l1) 
+                                                                         juntarTerriorios (exploradoresPorTerritorioL l2) 
+                                                                                          (exploradoresPorTerritorioL l3) )
+exploradoresPorTerritorioL (Explorador nom ts l1 l2 )= agregarExplorador nom ts (juntarTerriorios (exploradoresPorTerritorioL l1) 
+                                                                                                  (exploradoresPorTerritorioL l2) )
+exploradoresPorTerritorioL (Cria _ ) = []
 
-agregarExplorador :: Territorio -> Lobo -> [(Territorio, [Nombre])] 
-agregarExplorador t (Explorador nom ts l1 l2 ) = if pertenece t ts
-                                                then [(t, [nom])]
-                                                else [(t, [])]
+juntarTerriorios :: [(Territorio, [Nombre])] -> [(Territorio, [Nombre])]
+juntarTerriorios [] = 
+juntarTerriorios ((t,ns):tns) = -- COMPLETAR---------------------------------------------------------------------------------------
 
---Completar
+agregarExplorador :: Nombre -> [Territorio] -> [(Territorio, [Nombre])] -> [(Territorio, [Nombre])]
+agregarExplorador _ [] tns  = tns
+agregarExplorador nom (t:ts) [] = (t, [nom]) : agregarExplorador nom ts []
+agregarExplorador nom (t:ts) ((t2, ns): tns) = if t==t2
+                                               then (t2, nom :ns) ++ agregarExplorador nom ts tns
+                                               else agregarExplorador nom ts []
+ 
+agregarExplorador2 :: Nombre -> [Territorio] -> [(Territorio, [Nombre])] -> [(Territorio, [Nombre])]
+agregarExplorador2 _ [] tns  = tns
+agregarExplorador2 nom (t:ts) tns =  agregarATerreno nom t ... (agregarExplorador2 n ts tns)
+
+agregarATerreno :: Nombre -> Territorio -> [(Territorio, [Nombre])] -> [(Territorio, [Nombre])]
+agregarATerreno n t [] =
+agregarATerreno n t ((t2, ns):tns) = if t==t2
+                                     then (t2, nom :ns) ++ agregarExplorador nom ts tns
+                                     else agregarExplorador nom ts []
+
+
+
+--revisar
+
+--6. 
+superioresDelCazador :: Nombre -> Manada -> [Nombre]
+--Propósito: dado un nombre de cazador y una manada, indica el nombre de todos los
+--cazadores que tienen como subordinado al cazador dado (directa o indirectamente).
+--Precondición: hay un cazador con dicho nombre y es único
+superioresDelCazador nom (M l) = superioresDelCazadorLobos nom l
+
+superioresDelCazadorLobos :: Nombre  -> Lobo -> [Nombre]
+superioresDelCazadorLobos nom (Cazador nom _ l1 l2 l3)  = 
+superioresDelCazadorLobos nom (Explorador nom _ l1 l2 ) = 
+superioresDelCazadorLobos nom (Cria _ )                = []
 
 {-
 
 
 
 
-6. superioresDelCazador :: Nombre -> Manada -> [Nombre]
-Propósito: dado un nombre de cazador y una manada, indica el nombre de todos los
-cazadores que tienen como subordinado al cazador dado (directa o indirectamente).
-Precondición: hay un cazador con dicho nombre y es único
 
 -}
