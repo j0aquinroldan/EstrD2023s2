@@ -339,12 +339,12 @@ tripulantes (S _ _ ts) = ts
 type Presa = String -- nombre de presa
 type Territorio = String -- nombre de territorio
 type Nombre = String -- nombre de lobo
-data Lobo = Cazador Nombre [Presa] Lobo Lobo Lobo | Explorador Nombre [Territorio] Lobo Lobo | Cría Nombre
+data Lobo = Cazador Nombre [Presa] Lobo Lobo Lobo | Explorador Nombre [Territorio] Lobo Lobo | Cria Nombre
 data Manada = M Lobo
 
 
 
---1. Construir un valor de tipo Manada que posea 1 cazador, 2 exploradores y que el resto sean crías. 
+--1. Construir un valor de tipo Manada que posea 1 cazador, 2 exploradores y que el resto sean crias. 
 
 
 
@@ -357,36 +357,98 @@ cria0 = Cria "cria"
 
 --2. 
 buenaCaza :: Manada -> Bool
---Propósito: dada una manada, indica si la cantidad de alimento cazado es mayor a la cantidad de crías.
-buenaCaza (M lobo) = cantAlimento > cantCrias
+--Propósito: dada una manada, indica si la cantidad de alimento cazado es mayor a la cantidad de crias.
+buenaCaza (M lobo) = cantAlimento lobo > cantCrias lobo
 
-esCria Cría _ = True
+esCria (Cria _) = True
 esCria _ = False
 
 cantAlimento :: Lobo -> Int
-cantCrias Cazador _ presas l1 l2 l3 = longitud presas + cantAlimento l1 + cantAlimento l2 + cantAlimento l3
-cantCrias Explorador _ _ l1 l2 = cantAlimento l1 + cantAlimento l2
-cantCrias Cría _ = 0
+cantAlimento (Cazador _ presas l1 l2 l3) = longitud presas + cantAlimento l1 + cantAlimento l2 + cantAlimento l3
+cantAlimento (Explorador _ _ l1 l2) = cantAlimento l1 + cantAlimento l2
+cantAlimento (Cria _) = 0
+
+longitud :: [a] -> Int
+longitud [] = 0
+longitud (x:xs) = 1 + longitud xs
+
+cantCrias :: Lobo -> Int
+cantCrias (Cazador _ _ l1 l2 l3) = cantCrias l1 + cantCrias l2 + cantCrias l3
+cantCrias (Explorador _ _ l1 l2) = cantCrias l1 + cantCrias l2
+cantCrias (Cria _) = 1
 
 
-buenaCazaLobo :: Lobo -> Bool
-buenaCazaLobo Cazador _ [Presa] l1 l2 l3 
-Explorador _ [Territorio] l1 l2 
-Cría _ =
+--3. 
+elAlfa :: Manada -> (Nombre, Int)
+--Propósito: dada una manada, devuelve el nombre del lobo con más presas cazadas, junto
+--con su cantidad de presas. Nota: se considera que los exploradores y crias tienen cero presas
+--cazadas, y que podrían formar parte del resultado si es que no existen cazadores con más de
+--cero presas.
+elAlfa (M l) = elAlfaL l
+
+elAlfaL :: Lobo -> (Nombre, Int)
+elAlfaL (Cazador nom pres l1 l2 l3) = elegirEntre (nom, longitud pres) 
+                                                  (elegirEntre (elAlfaL l1 )
+                                                               (elegirEntre  (elAlfaL l2) 
+                                                                             (elAlfaL l3)))
+elAlfaL (Explorador nom _ l1 l2) =  (elegirEntre (elAlfaL l1 )
+                                                 (elegirEntre  (elAlfaL l2) 
+                                                                             (nom, 0)))                              
+elAlfaL (Cria nom) = (nom, 0)
+
+
+elegirEntre :: (Nombre, Int) -> (Nombre, Int) -> (Nombre, Int)
+elegirEntre (n1, c1) (n2, c2) = if c1 >= c2
+                                then (n1,c1)
+                                else (n2, c2)
+
+-- falta probar
+
+--4. 
+losQueExploraron :: Territorio -> Manada -> [Nombre]
+--Propósito: dado un territorio y una manada, devuelve los nombres de los exploradores que
+--pasaron por dicho territorio.
+losQueExploraron t (M l) = losQueExploraronL t l
+
+losQueExploraronL :: Territorio -> Lobo -> [Nombre]
+losQueExploraronL t (Cazador _ _ l1 l2 l3)    = losQueExploraronL t l1 ++ 
+                                                losQueExploraronL t l2 ++ 
+                                                losQueExploraronL t l3 
+losQueExploraronL t (Explorador nom ts l1 l2 )= singularSi nom (pertenece t ts) ++ 
+                                                losQueExploraronL t l1 ++ 
+                                                losQueExploraronL t l2
+losQueExploraronL t (Cria nom ) = []
+
+
+-- falta probar
+
+
+--5. 
+exploradoresPorTerritorio :: Manada -> [(Territorio, [Nombre])]
+--Propósito: dada una manada, denota la lista de los pares cuyo primer elemento es un territorio y cuyo segundo elemento es la lista de los nombres de los exploradores que exploraron
+--dicho territorio. Los territorios no deben repetirse.
+exploradoresPorTerritorio (M l) = exploradoresPorTerritorioL l
+
+exploradoresPorTerritorioL :: Lobo -> [(Territorio, [Nombre])]
+exploradoresPorTerritorioL (Cazador _ _ l1 l2 l3)   = exploradoresPorTerritorioL l1 ++ 
+                                                      exploradoresPorTerritorioL l2 ++ 
+                                                      exploradoresPorTerritorioL l3 
+exploradoresPorTerritorioL (Explorador nom ts l1 l2 )= exploradoresPorTerritorioL l1 ++ 
+                                                       exploradoresPorTerritorioL l2
+exploradoresPorTerritorioL (Cria nom ) = []
+
+agregarExplorador :: Territorio -> Lobo -> [(Territorio, [Nombre])] 
+agregarExplorador t (Explorador nom ts l1 l2 ) = if pertenece t ts
+                                                then [(t, [nom])]
+                                                else [(t, [])]
+
+--Completar
 
 {-
 
-3. elAlfa :: Manada -> (Nombre, Int)
-Propósito: dada una manada, devuelve el nombre del lobo con más presas cazadas, junto
-con su cantidad de presas. Nota: se considera que los exploradores y crías tienen cero presas
-cazadas, y que podrían formar parte del resultado si es que no existen cazadores con más de
-cero presas.
-4. losQueExploraron :: Territorio -> Manada -> [Nombre]
-Propósito: dado un territorio y una manada, devuelve los nombres de los exploradores que
-pasaron por dicho territorio.
-5. exploradoresPorTerritorio :: Manada -> [(Territorio, [Nombre])]
-Propósito: dada una manada, denota la lista de los pares cuyo primer elemento es un territorio y cuyo segundo elemento es la lista de los nombres de los exploradores que exploraron
-dicho territorio. Los territorios no deben repetirse.
+
+
+
 6. superioresDelCazador :: Nombre -> Manada -> [Nombre]
 Propósito: dado un nombre de cazador y una manada, indica el nombre de todos los
 cazadores que tienen como subordinado al cazador dado (directa o indirectamente).
