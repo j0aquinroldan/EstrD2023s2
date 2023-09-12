@@ -465,8 +465,8 @@ agregarExplorador2 nom (t:ts) tns =  agregarATerreno nom t ... (agregarExplorado
 agregarATerreno :: Nombre -> Territorio -> [(Territorio, [Nombre])] -> [(Territorio, [Nombre])]
 agregarATerreno n t [] =
 agregarATerreno n t ((t2, ns):tns) = if t==t2
-                                     then (t2, nom :ns) ++ agregarExplorador nom ts tns
-                                     else agregarExplorador nom ts []
+                                     then (t, nom :ns) : tss
+                                     else (t2, ns) agregarATerreno nom ts tns
 
 
 
