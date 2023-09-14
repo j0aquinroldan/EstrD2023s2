@@ -443,17 +443,36 @@ exploradoresPorTerritorioL :: Lobo -> [(Territorio, [Nombre])]
 exploradoresPorTerritorioL (Cazador _ _ l1 l2 l3)   = 
                                           juntarTerritorios (exploradoresPorTerritorioL l1) 
                                                 (juntarTerritorios (exploradoresPorTerritorioL l2) 
-                                                                 (exploradoresPorTerritorioL l3) )
+                                                         (exploradoresPorTerritorioL l3) )
 exploradoresPorTerritorioL (Explorador nom ts l1 l2 )= agregarExplorador nom ts 
                                                             (juntarTerritorios (exploradoresPorTerritorioL l1) 
                                                                               (exploradoresPorTerritorioL l2) )
 exploradoresPorTerritorioL (Cria _ ) = []
 
-juntarTerritorios :: [(Territorio, [Nombre])] -> [(Territorio, [Nombre])]
-juntarTerritorios [] = []
-juntarTerritorios ((t,ns):tns) =  (t, ns) : juntarTerritorios tns
+juntarTerritorios :: [(Territorio, [Nombre])] -> [(Territorio, [Nombre])] -> [(Territorio, [Nombre])] 
+juntarTerritorios [] tns2 = tns2
+juntarTerritorios tns1 [] = tns1
+juntarTerritorios ((t,ns):tns) tns2= sumarTerritorio  (t,ns)  (juntarTerritorios tns tns2)
 
-{-
+
+     
+sumarTerritorio :: (Territorio, [Nombre]) -> [(Territorio, [Nombre])] -> [(Territorio, [Nombre])]
+-- PREC: las tuplas no tienen nombres repetidos
+sumarTerritorio (t,ns) []                  =  [(t,ns)]
+sumarTerritorio (t,ns) ( (t2, ns2) : tns2) = if t == t2
+                                             then (t2, appendSinRep ns ns2 ) :  tns2
+                                             else  (t2, ns2) : sumarTerritorio (t,ns) tns2
+
+appendSinRep :: Eq a => [a] -> [a] -> [a]
+appendSinRep xs [] = xs
+appendSinRep [] ys = ys
+appendSinRep (x:xs) ys = if pertenece x ys 
+                        then appendSinRep xs ys
+                        else x : appendSinRep xs ys
+
+
+
+{- 
 agregarExplorador2 :: Nombre -> [Territorio] -> [(Territorio, [Nombre])] -> [(Territorio, [Nombre])]
 agregarExplorador2 _ [] tns  = tns
 agregarExplorador2 nom (t:ts) [] = (t, [nom]) : agregarExplorador nom ts []
