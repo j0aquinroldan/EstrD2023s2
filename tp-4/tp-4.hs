@@ -269,11 +269,11 @@ agregarComponentesSector cs1 sid (S id cs2 ts) = if sid == id
 
 agregarComponentesTree2 :: [Componente] -> SectorId ->  Tree Sector -> Tree Sector
 agregarComponentesTree2 _   _  (EmptyT)        = (EmptyT)
-agregarComponentesTree2 cs sId (NodeT s t1 t2) = if sid == id
+agregarComponentesTree2 cs sId (NodeT s t1 t2) = if sId == sectorId s
                                                  then (NodeT (agregarComp cs s) t1 t2)
                                                  else (NodeT s 
-                                                       (agregarComponentesTree cs sId t1 )
-                                                       (agregarComponentesTree cs sId t2))  
+                                                       (agregarComponentesTree2 cs sId t1 )
+                                                       (agregarComponentesTree2 cs sId t2))  
        
 agregarComp cs1 (S id cs2 ts) = (S id (cs2 ++ cs1) ts)
                                                        
@@ -440,37 +440,48 @@ exploradoresPorTerritorio :: Manada -> [(Territorio, [Nombre])]
 exploradoresPorTerritorio (M l) = exploradoresPorTerritorioL l
 
 exploradoresPorTerritorioL :: Lobo -> [(Territorio, [Nombre])]
-exploradoresPorTerritorioL (Cazador _ _ l1 l2 l3)   = juntarTerriorios ((exploradoresPorTerritorioL l1) 
-                                                                         juntarTerriorios (exploradoresPorTerritorioL l2) 
-                                                                                          (exploradoresPorTerritorioL l3) )
-exploradoresPorTerritorioL (Explorador nom ts l1 l2 )= agregarExplorador nom ts (juntarTerriorios (exploradoresPorTerritorioL l1) 
-                                                                                                  (exploradoresPorTerritorioL l2) )
+exploradoresPorTerritorioL (Cazador _ _ l1 l2 l3)   = 
+                                          juntarTerritorios (exploradoresPorTerritorioL l1) 
+                                                (juntarTerritorios (exploradoresPorTerritorioL l2) 
+                                                                 (exploradoresPorTerritorioL l3) )
+exploradoresPorTerritorioL (Explorador nom ts l1 l2 )= agregarExplorador nom ts 
+                                                            (juntarTerritorios (exploradoresPorTerritorioL l1) 
+                                                                              (exploradoresPorTerritorioL l2) )
 exploradoresPorTerritorioL (Cria _ ) = []
 
-juntarTerriorios :: [(Territorio, [Nombre])] -> [(Territorio, [Nombre])]
-juntarTerriorios [] = 
-juntarTerriorios ((t,ns):tns) = -- COMPLETAR---------------------------------------------------------------------------------------
+juntarTerritorios :: [(Territorio, [Nombre])] -> [(Territorio, [Nombre])]
+juntarTerritorios [] = []
+juntarTerritorios ((t,ns):tns) =  (t, ns) : juntarTerritorios tns
 
-agregarExplorador :: Nombre -> [Territorio] -> [(Territorio, [Nombre])] -> [(Territorio, [Nombre])]
-agregarExplorador _ [] tns  = tns
-agregarExplorador nom (t:ts) [] = (t, [nom]) : agregarExplorador nom ts []
-agregarExplorador nom (t:ts) ((t2, ns): tns) = if t==t2
-                                               then (t2, nom :ns) ++ agregarExplorador nom ts tns
-                                               else agregarExplorador nom ts []
- 
+{-
 agregarExplorador2 :: Nombre -> [Territorio] -> [(Territorio, [Nombre])] -> [(Territorio, [Nombre])]
 agregarExplorador2 _ [] tns  = tns
-agregarExplorador2 nom (t:ts) tns =  agregarATerreno nom t ... (agregarExplorador2 n ts tns)
+agregarExplorador2 nom (t:ts) [] = (t, [nom]) : agregarExplorador nom ts []
+agregarExplorador2 nom (t:ts) ((t2, ns): tns) = if t==t2
+                                               then (t2, nom :ns) ++ agregarExplorador nom ts tns
+                                               else agregarExplorador nom (t:ts) tns
+-} 
+
+agregarExplorador :: Nombre -> [Territorio] -> [(Territorio, [Nombre])] -> [(Territorio, [Nombre])]
+--PREC: en la lista de territorios no hay repetidos y en la lista de tuplas tampoco hay territorios repetidos
+agregarExplorador _ [] tns  = tns
+agregarExplorador nom (t:ts) tns =  agregarATerreno nom t (agregarExplorador nom ts tns)
 
 agregarATerreno :: Nombre -> Territorio -> [(Territorio, [Nombre])] -> [(Territorio, [Nombre])]
-agregarATerreno n t [] =
-agregarATerreno n t ((t2, ns):tns) = if t==t2
-                                     then (t, nom :ns) : tss
-                                     else (t2, ns) agregarATerreno nom ts tns
+--PREC: en la lista de tuplas no hay territorios repetidos
+agregarATerreno nom t [] = [(t, [nom])]
+agregarATerreno nom t ((t2, ns):tns) = if t==t2
+                                       then (t, nom :ns) : tns
+                                       else (t2, ns) : agregarATerreno nom t tns
 
 
 
 --revisar
+
+
+
+{-
+
 
 --6. 
 superioresDelCazador :: Nombre -> Manada -> [Nombre]
@@ -483,11 +494,6 @@ superioresDelCazadorLobos :: Nombre  -> Lobo -> [Nombre]
 superioresDelCazadorLobos nom (Cazador nom _ l1 l2 l3)  = 
 superioresDelCazadorLobos nom (Explorador nom _ l1 l2 ) = 
 superioresDelCazadorLobos nom (Cria _ )                = []
-
-{-
-
-
-
 
 
 -}
