@@ -278,26 +278,43 @@ exp5 = Neg (Neg exp2)
 simplificar :: ExpA -> ExpA
 --Dada una expresión aritmética, la simplifica según los siguientes criterios 
 
-simplificar (Valor n) = Valor n
-simplificar (Neg e)   = simplificarNeg  (Neg (simplificar e))
-simplificar (Sum e1 e2)  = simplificarSum (Sum (simplificar e1) (simplificar e2))
-simplificar (Prod e1 e2) = simplificarProducto (Prod (simplificar e1) (simplificar e2))
+simplificar (Valor n)    = Valor n
+simplificar (Neg e)      = simplificarNeg2  ((simplificar e))
+simplificar (Sum e1 e2)  = simplificarSum2  (simplificar e1) (simplificar e2)
+simplificar (Prod e1 e2) = simplificarProd2 (simplificar e1) (simplificar e2)
 
 
-simplificarSum :: ExpA-> ExpA
-simplificarSum (Sum   exp1   (Valor 0)) = exp1 
-simplificarSum (Sum (Valor 0)   exp2  ) = exp2
-simplificarSum (Sum   exp1      exp2  ) = (Sum exp1 exp2) 
-simplificarSum          exp             = exp
+simplificarSum :: ExpA-> ExpA-> ExpA
+simplificarSum exp1   (Valor 0) = exp1 
+simplificarSum (Valor 0)   exp2 = exp2
+simplificarSum exp1      exp2   = (Sum ( exp1) ( exp2)) 
 
-simplificarProducto :: ExpA -> ExpA
-simplificarProducto (Prod    exp1     (Valor 1)) = exp1
-simplificarProducto (Prod     _       (Valor 0)) = Valor 0
-simplificarProducto (Prod (Valor 1)     exp2   ) = exp2
-simplificarProducto (Prod (Valor 0)     _      ) = Valor 0
-simplificarProducto (Prod    exp1      exp2    ) = (Prod exp1 exp2)
-simplificarProducto exp             = exp
+simplificarSum2 :: ExpA-> ExpA-> ExpA
+simplificarSum2 exp1   (Valor 0) = simplificar exp1 
+simplificarSum2 (Valor 0)   exp2 = simplificar exp2
+simplificarSum2 exp1      exp2   = simplificar (Sum ( simplificar exp1) (simplificar exp2)) 
+
+
+simplificarProd :: ExpA -> ExpA-> ExpA
+simplificarProd    exp1     (Valor 1) = exp1
+simplificarProd     _       (Valor 0) = Valor 0
+simplificarProd (Valor 1)     exp2    = exp2
+simplificarProd (Valor 0)     _       = Valor 0
+simplificarProd    exp1      exp2     = (Prod exp1 exp2)
+
+simplificarProd2 :: ExpA -> ExpA-> ExpA
+simplificarProd2    exp1     (Valor 1) = simplificar exp1
+simplificarProd2     _       (Valor 0) = Valor 0
+simplificarProd2 (Valor 1)     exp2    = simplificar exp2
+simplificarProd2 (Valor 0)     _       = Valor 0
+simplificarProd2    exp1      exp2     = simplificar (Prod (simplificar exp1) (simplificar exp2))
+
                              
 simplificarNeg :: ExpA -> ExpA
-simplificarNeg (Neg (Neg exp)) = exp
-simplificarNeg exp             = exp
+simplificarNeg (Neg exp)       = exp
+simplificarNeg exp = Neg exp
+
+
+simplificarNeg2 :: ExpA -> ExpA
+simplificarNeg2 (Neg exp)       = simplificar exp
+simplificarNeg2 exp = simplificar (Neg exp)
