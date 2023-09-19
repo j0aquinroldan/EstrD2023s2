@@ -384,17 +384,17 @@ cantQueTrabajanEn :: [Proyecto] -> Empresa -> Int
 cantQueTrabajanEn (p:ps) (ConsEmpresa rs) = longitud ( losQueTrabajanEnProyectos rs ps)
 
 ------------------------------------
-asignadosPorProyectoEnEmpresa :: Empresa -> [(Proyecto, Int)]
+asignadosPorProyecto :: Empresa -> [(Proyecto, Int)]
 --Devuelve una lista de pares que representa a los proyectos (sin repetir) junto con su
 --cantidad de personas involucradas, DENTRO DE UNA EMPRESA DADA POR PARAMETRO
-asignadosPorProyectoEnEmpresa (ConsEmpresa rs) = asignadosPorProyecto (proyectosDeRoles rs )
+asignadosPorProyecto (ConsEmpresa rs) = asignadosPorProyectos (proyectosDeRoles rs )
 
 
-asignadosPorProyecto :: [Proyecto] -> [(Proyecto, Int)]
+asignadosPorProyectos :: [Proyecto] -> [(Proyecto, Int)]
 --Devuelve una lista de pares que representa a los proyectos (sin repetir) junto con su
 --cantidad de personas involucradas, DENTRO DE UNA LISTA DE PROYECTOS DADA POR PARAMETROS
-asignadosPorProyecto ps = asignadosEnLosProyectos_ (sinProyectosRepetidos ps) ps
-
+asignadosPorProyectos ps = asignadosEnLosProyectos_ (sinProyectosRepetidos ps) ps
+ 
 asignadosEnLosProyectos_ ::[Proyecto] -> [Proyecto]-> [(Proyecto, Int)]
 -- A partir de una lista de proyectos devuelve las personas involucradas en la segund lista de 
 -- proyectos

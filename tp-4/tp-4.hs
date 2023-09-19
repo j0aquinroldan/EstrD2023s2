@@ -504,8 +504,6 @@ superioresDelCazadorLobos nom (Cazador nom2 _ l1 l2 l3)  = appendSinRep (
                                                            (superioresDelCazadorLobos nom l1 ++
                                                            superioresDelCazadorLobos nom l2 ++
                                                            superioresDelCazadorLobos nom l3)
-                                                          
-
 superioresDelCazadorLobos nom (Explorador nom2 _ l1 l2 ) = appendSinRep (
                                                             singularSi nom2 (
                                                              esOTieneSubordinadoA nom l1 ||
@@ -518,14 +516,18 @@ esOTieneSubordinadoA :: Nombre -> Lobo ->Bool
 esOTieneSubordinadoA nom (Cazador nom2 _ l1 l2 l3)  = nom == nom2 ||
                                                    cazadorYSeLlama nom l1 ||
                                                    cazadorYSeLlama nom l2 ||
-                                                   cazadorYSeLlama nom l3 
-                                                   
+                                                   cazadorYSeLlama nom l3                                                  
 esOTieneSubordinadoA nom (Explorador nom2 _ l1 l2 ) = cazadorYSeLlama nom l1 ||
                                                    cazadorYSeLlama nom l2 
-
 esOTieneSubordinadoA nom (Cria _ )                  = False
 
 cazadorYSeLlama nom (Cazador nom2 _ _ _ _ )  = nom == nom2
 cazadorYSeLlama nom (Explorador nom2 _ _ _ ) = False
 cazadorYSeLlama nom (Cria _ )                = False
 
+appendSinRep :: Eq a => [a] -> [a] -> [a]
+appendSinRep xs [] = xs
+appendSinRep [] ys = ys
+appendSinRep (x:xs) ys = if pertenece x (sinRepetidos ys) || pertenece x xs
+                        then appendSinRep xs (sinRepetidos ys) 
+                        else x : appendSinRep xs (sinRepetidos ys) 
