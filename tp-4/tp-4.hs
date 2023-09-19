@@ -356,13 +356,18 @@ data Manada = M Lobo
 
 --1. Construir un valor de tipo Manada que posea 1 cazador, 2 exploradores y que el resto sean crias. 
 
-
-
 manada0 = M caz1
-caz1 = Cazador "caz" ["conejo"] expl1 expl2 cria0
+caz1 = Cazador "caz" ["conejo","rata"] expl1 expl2 cria0
 expl1 = Explorador "exp" ["Bosque"] cria0 cria0
-expl2 =Explorador "exp2" ["Rios"] cria0 cria0
+expl2 =Explorador "expl2" ["Bosque"] cria0 cria0
 cria0 = Cria "cria"
+
+manada1 = M caz2
+caz2 = Cazador "caz" ["conejo","rata"] expl1 expl3 cria0
+expl3 =Explorador "expl2" ["Bosque"] cria0 caz2
+caz3 = Cazador "caz2" [] cria0 cria0 cria0
+
+
 
 
 --2. 
@@ -412,7 +417,7 @@ elegirEntre (n1, c1) (n2, c2) = if c1 >= c2
                                 then (n1,c1)
                                 else (n2, c2)
 
--- falta probar
+
 
 --4. 
 losQueExploraron :: Territorio -> Manada -> [Nombre]
@@ -428,9 +433,6 @@ losQueExploraronL t (Explorador nom ts l1 l2 )= singularSi nom (pertenece t ts) 
                                                 losQueExploraronL t l1 ++ 
                                                 losQueExploraronL t l2
 losQueExploraronL t (Cria nom ) = []
-
-
--- falta probar
 
 
 --5. 
@@ -449,14 +451,15 @@ exploradoresPorTerritorioL (Explorador nom ts l1 l2 )= agregarExplorador nom ts
                                                                               (exploradoresPorTerritorioL l2) )
 exploradoresPorTerritorioL (Cria _ ) = []
 
+
 juntarTerritorios :: [(Territorio, [Nombre])] -> [(Territorio, [Nombre])] -> [(Territorio, [Nombre])] 
+--PROP: junta los nombres de los territorios, sin que hayan dos tuplas con el mismo territorio 
 juntarTerritorios [] tns2 = tns2
 juntarTerritorios tns1 [] = tns1
 juntarTerritorios ((t,ns):tns) tns2= sumarTerritorio  (t,ns)  (juntarTerritorios tns tns2)
-
-
      
 sumarTerritorio :: (Territorio, [Nombre]) -> [(Territorio, [Nombre])] -> [(Territorio, [Nombre])]
+--PROP: suma los nombres del territorio al mismo territorio que esta dentro de la lista de tuplas
 -- PREC: las tuplas no tienen nombres repetidos
 sumarTerritorio (t,ns) []                  =  [(t,ns)]
 sumarTerritorio (t,ns) ( (t2, ns2) : tns2) = if t == t2
@@ -466,20 +469,10 @@ sumarTerritorio (t,ns) ( (t2, ns2) : tns2) = if t == t2
 appendSinRep :: Eq a => [a] -> [a] -> [a]
 appendSinRep xs [] = xs
 appendSinRep [] ys = ys
-appendSinRep (x:xs) ys = if pertenece x ys 
-                        then appendSinRep xs ys
-                        else x : appendSinRep xs ys
+appendSinRep (x:xs) ys = if pertenece x (sinRepetidos ys) || pertenece x xs
+                        then appendSinRep xs (sinRepetidos ys) 
+                        else x : appendSinRep xs (sinRepetidos ys) 
 
-
-
-{- 
-agregarExplorador2 :: Nombre -> [Territorio] -> [(Territorio, [Nombre])] -> [(Territorio, [Nombre])]
-agregarExplorador2 _ [] tns  = tns
-agregarExplorador2 nom (t:ts) [] = (t, [nom]) : agregarExplorador nom ts []
-agregarExplorador2 nom (t:ts) ((t2, ns): tns) = if t==t2
-                                               then (t2, nom :ns) ++ agregarExplorador nom ts tns
-                                               else agregarExplorador nom (t:ts) tns
--} 
 
 agregarExplorador :: Nombre -> [Territorio] -> [(Territorio, [Nombre])] -> [(Territorio, [Nombre])]
 --PREC: en la lista de territorios no hay repetidos y en la lista de tuplas tampoco hay territorios repetidos
@@ -495,13 +488,6 @@ agregarATerreno nom t ((t2, ns):tns) = if t==t2
 
 
 
---revisar
-
-
-
-{-
-
-
 --6. 
 superioresDelCazador :: Nombre -> Manada -> [Nombre]
 --Propósito: dado un nombre de cazador y una manada, indica el nombre de todos los
@@ -510,9 +496,36 @@ superioresDelCazador :: Nombre -> Manada -> [Nombre]
 superioresDelCazador nom (M l) = superioresDelCazadorLobos nom l
 
 superioresDelCazadorLobos :: Nombre  -> Lobo -> [Nombre]
-superioresDelCazadorLobos nom (Cazador nom _ l1 l2 l3)  = 
-superioresDelCazadorLobos nom (Explorador nom _ l1 l2 ) = 
-superioresDelCazadorLobos nom (Cria _ )                = []
+superioresDelCazadorLobos nom (Cazador nom2 _ l1 l2 l3)  = appendSinRep (
+                                                            singularSi nom2 (
+                                                             esOTieneSubordinadoA nom l1 ||
+                                                             esOTieneSubordinadoA nom l2 ||
+                                                             esOTieneSubordinadoA nom l3)) 
+                                                           (superioresDelCazadorLobos nom l1 ++
+                                                           superioresDelCazadorLobos nom l2 ++
+                                                           superioresDelCazadorLobos nom l3)
+                                                          
 
+superioresDelCazadorLobos nom (Explorador nom2 _ l1 l2 ) = appendSinRep (
+                                                            singularSi nom2 (
+                                                             esOTieneSubordinadoA nom l1 ||
+                                                             esOTieneSubordinadoA nom l2) ) 
+                                                           (superioresDelCazadorLobos nom l1 ++
+                                                           superioresDelCazadorLobos nom l2 )
+superioresDelCazadorLobos nom (Cria _ )                 = []
 
--}
+esOTieneSubordinadoA :: Nombre -> Lobo ->Bool 
+esOTieneSubordinadoA nom (Cazador nom2 _ l1 l2 l3)  = nom == nom2 ||
+                                                   cazadorYSeLlama nom l1 ||
+                                                   cazadorYSeLlama nom l2 ||
+                                                   cazadorYSeLlama nom l3 
+                                                   
+esOTieneSubordinadoA nom (Explorador nom2 _ l1 l2 ) = cazadorYSeLlama nom l1 ||
+                                                   cazadorYSeLlama nom l2 
+
+esOTieneSubordinadoA nom (Cria _ )                  = False
+
+cazadorYSeLlama nom (Cazador nom2 _ _ _ _ )  = nom == nom2
+cazadorYSeLlama nom (Explorador nom2 _ _ _ ) = False
+cazadorYSeLlama nom (Cria _ )                = False
+
