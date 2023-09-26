@@ -193,20 +193,6 @@ desapilarStack s xs = if isEmptyS s
 insertarEnPos :: Int -> a -> Stack a -> Stack a
 --Dada una posicion válida en la stack y un elemento, ubica dicho elemento en dicha
 --posición (se desapilan elementos hasta dicha posición y se inserta en ese lugar).
-insertarEnPos n x s = apilar (insertarEnPosLista n x (desapilar s))
+insertarEnPos 0 x st = push x st
+insertarEnPos n x st = push (top st) (insertarEnPos (n-1) x (pop st)) 
 
-
-
-
-insertarEnPosLista :: Int -> a -> [a] -> [a]
-insertarEnPosLista _ _ []      = []
-insertarEnPosLista 0 x xs      = x:xs
-insertarEnPosLista n x1 (x:xs) = x : insertarEnPosLista (n-1) x1 xs
-
-
-{-
-
-
-
-
--}
