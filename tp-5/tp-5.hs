@@ -52,10 +52,10 @@ dropN 0 xs = xs
 dropN n [] = []
 dropN n (x:xs) = dropN (n-1) xs
 
-partir :: Int -> [a] -> ([a], [a]) -- cuadratica
+partir :: Int -> [a] -> ([a], [a]) -- lineal
 partir n xs = (takeN n xs, dropN n xs)
 
-minimo :: Ord a => [a] -> a -- cuadratica
+minimo :: Ord a => [a] -> a -- lineal
 minimo [x] = x
 minimo (x:xs) = min x (minimo xs)
 
