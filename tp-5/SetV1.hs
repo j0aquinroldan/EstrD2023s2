@@ -36,8 +36,16 @@ sizeSet (Set _ l) = l
 
 removeSet x (Set ys l) = Set (sacar x ys) (longitud ((sacar x ys)))
 
-unionSet s1 (Set [] _)  = s1
-unionSet s1 (Set (y:ys) l2) = unionSet (addSet y s1) (Set ys l2)
+unionSet (Set xs _) (Set ys _)  =  Set (juntar xs ys) (longitud ((sacar x ys)))
+
+juntar [] ys = ys
+juntar (x:xs) ys = agregarSinRep x (juntar xs ys)
+
+agregarSinRep :: a->[a]->[a]
+agregarSinRep x [] = [xs]
+agregarSinRep x (y:ys) = if x == y 
+                         then y:ys
+                         else y: (agregarSinRep x ys)   
 
 setToList (Set xs _) = xs
 
