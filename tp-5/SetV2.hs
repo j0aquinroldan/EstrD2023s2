@@ -13,6 +13,12 @@ where
 data Set a = Set [a] Int 
             -- lista, cantidad elementos
 
+{-
+INV REP:
+    Set xs l 
+    l representa la longitud de xs
+-}
+
 emptySet :: Set a
 --Crea un conjunto vacío.
 addSet :: Eq a => a -> Set a -> Set a
