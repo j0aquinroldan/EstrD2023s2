@@ -13,7 +13,10 @@ module PriorityQueue
 where
 
 data PriorityQueue a = PQ [a]    
-
+{-
+INV REP:
+     los elementos en la lista deben ser ordenables
+-}
 
 emptyPQ :: PriorityQueue a                                                      --O(1)
 --PROP: devuelve una priority queue vacía.
@@ -40,7 +43,6 @@ findMinPQ (PQ xs) = minimum xs
 deleteMinPQ (PQ xs) = PQ (borrarMin xs)
 
 borrarMin :: Ord a => [a] -> [a]
-
 borrarMin xs = borrar (minimum xs) xs
 
 borrar :: Eq a => a -> [a] -> [a]

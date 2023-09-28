@@ -123,25 +123,29 @@ incrementar :: Eq k => [k] -> Map k Int -> Map k Int
 incrementar ks m = agregarAPares ks (mapToList m)
 
 
--- SE ESTA HACIENDO RECURSION SOBRE LAS DOS LISTAS, CORREGIR CON DOS FUNCIONES EN LAS QUE CADA UNA RECPORRA C
--- CADA LISTA
 agregarAPares :: Eq k => [k] -> [(k, Int)] -> [(k, Int)]
-
+--Propósito: dada una lista de claves de tipo k y otra lista de tuplas k a Int, le suma uno a
+--cada número asociado con dichas claves.
 agregarAPares [] kns = kns
-agregarAPares _  []  = []
-agregarAPares (k:ks) ((k',n):kns) = if k == k'
-                                    then (k',n+1) : agregarAPares k kns
+agregarAPares (k:ks) kns = agregarAPares2 k kns ++ agregarAPares ks kns
+
+
+agregarAPares2 :: Eq k => k -> [(k, Int)] -> [(k, Int)]
+--Propósito: dada una clave de tipo k y una lista de tuplas k a Int, le suma uno al
+-- número asociado con dicha clave.
+agregarAPares2 _  []  = []
+agregarAPares2 k ((k',n):kns) = if k == k'
+                                    then (k',n+1) :  kns
                                     else (k',n) : agregarAPares k kns
 
+---------------
+--7. 
+mergeMaps:: Eq k => Map k v -> Map k v -> Map k v
+--Propósito: dado dos maps se agregan las claves y valores del primer map en el segundo. Si
+--una clave del primero existe en el segundo, es reemplazada por la del primero.
+mergeMaps m1 m2 = asociarlas (listToMap m1) m2
+
+
 {-
-assocM k (valor (lookupM k m) + 1) m 
-Implementar como usuario del tipo abstracto Map las siguientes funciones:
 
-
-
-
-
-7. mergeMaps:: Eq k => Map k v -> Map k v -> Map k v
-Propósito: dado dos maps se agregan las claves y valores del primer map en el segundo. Si
-una clave del primero existe en el segundo, es reemplazada por la del primero.
 -}
