@@ -35,15 +35,49 @@ toListPQ pq = if isEmptyPQ pq
               else findMinPQ pq : toListPQ (deleteMinPQ pq)
 
 
+ejMap =  assocM 'a' 4  $
+       assocM 'b' 3  $
+       assocM 'c' 2  $
+       assocM 'd' 1 emptyM
+
+--1.  O(n^2)
+valuesM :: Eq k => Map k v -> [Maybe v]
+--Propósito: obtiene los valores asociados a cada clave del map.
+valuesM m = valoresClaves (keys m) m 
+
+
+-- O(n^2)
+valoresClaves :: Eq k => [k] -> Map k v -> [Maybe v]
+valoresClaves [] _ = []
+valoresClaves (k:ks) m  = lookupM k m : valoresClaves ks m
+
+
+--2. O(n^2)
+todasAsociadas :: Eq k => [k] -> Map k v -> Bool
+--Propósito: indica si en el map se encuentran todas las claves dadas.
+todasAsociadas [] m = True
+todasAsociadas (k:ks) m = noNothing (lookupM k m ) && todasAsociadas ks m
+
+--O(1)
+noNothing ::  Maybe v -> Bool
+noNothing Nothing = False
+noNothing _ = True 
+
+
+--3. 
+listToMap :: Eq k => [(k, v)] -> Map k v
+--Propósito: convierte una lista de pares clave valor en un map.
+listToMap kvs = asociarlas kvs emptyM
+
+
+asociarlas :: Eq k => [(k, v)] -> Map k v -> Map k v 
+asociarlas [] m = m
+asociarlas ((k,v): kvs) m = asociarlas kvs (assocM k v m )
 {-
 
 Implementar como usuario del tipo abstracto Map las siguientes funciones:
-1. valuesM :: Eq k => Map k v -> [Maybe v]
-Propósito: obtiene los valores asociados a cada clave del map.
-2. todasAsociadas :: Eq k => [k] -> Map k v -> Bool
-Propósito: indica si en el map se encuentran todas las claves dadas.
-3. listToMap :: Eq k => [(k, v)] -> Map k v
-Propósito: convierte una lista de pares clave valor en un map.
+
+
 4. mapToList :: Eq k => Map k v -> [(k, v)]
 Propósito: convierte un map en una lista de pares clave valor.
 5. agruparEq :: Eq k => [(k, v)] -> Map k [v]
