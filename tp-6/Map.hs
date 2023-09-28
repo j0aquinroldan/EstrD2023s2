@@ -9,7 +9,7 @@ module Map
 (Map, emptyM, assocM, lookupM, deleteM, keys) 
 where
 
-data Map k v = M [(k,v)]
+data Map k v = M [(k,v)] 
 
 
 emptyM :: Map k v
@@ -23,31 +23,38 @@ deleteM :: Eq k => k -> Map k v -> Map k v
 keys :: Map k v -> [k]
 --Propósito: devuelve las claves del map.
 
+
+--O(1)
 emptyM = M []
 
+--O(n)
 assocM k v (M kvs) = (M (asociar k v kvs))
 
+--O(n)
 asociar :: Eq k => k -> v -> [(k, v)] -> [( k, v)]
 asociar k v [] = [(k,v)]
 asociar k v ((k',v'): kvs) = if k ==k'
                            then (k,v) : kvs
                            else (k',v') : asociar k v kvs
 
-
+--O(n)
 lookupM k (M []) = Nothing
 lookupM k (M ((k',v') : kvs)) = if k == k'
                                 then Just v'
                                 else lookupM k (M kvs)
 
-deleteM _ (M [])  = M []
+--O(n)
 deleteM k (M kvs) = (M (borrar k kvs))
 
+--O(n)
 borrar :: Eq k => k -> [(k, v)] -> [( k, v)]
 borrar _ []                 = []
 borrar k  ((k', v') : kvs ) = if k == k'
                                then kvs
                                else (k',v') : borrar k kvs
 
+
+--O(n)
 keys (M [])          = []
 keys (M ((k,v):kvs)) = k : keys (M kvs) 
 

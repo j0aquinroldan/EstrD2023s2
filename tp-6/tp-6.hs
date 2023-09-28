@@ -56,36 +56,91 @@ valoresClaves (k:ks) m  = lookupM k m : valoresClaves ks m
 todasAsociadas :: Eq k => [k] -> Map k v -> Bool
 --Propósito: indica si en el map se encuentran todas las claves dadas.
 todasAsociadas [] m = True
-todasAsociadas (k:ks) m = noNothing (lookupM k m ) && todasAsociadas ks m
+todasAsociadas (k:ks) m = notNothing (lookupM k m ) && todasAsociadas ks m
 
 --O(1)
-noNothing ::  Maybe v -> Bool
-noNothing Nothing = False
-noNothing _ = True 
+notNothing ::  Maybe v -> Bool
+notNothing Nothing = False
+notNothing _ = True 
 
 
---3. 
+--3. --O(n^2)
 listToMap :: Eq k => [(k, v)] -> Map k v
 --Propósito: convierte una lista de pares clave valor en un map.
 listToMap kvs = asociarlas kvs emptyM
 
-
+--O(n^2)
 asociarlas :: Eq k => [(k, v)] -> Map k v -> Map k v 
 asociarlas [] m = m
 asociarlas ((k,v): kvs) m = asociarlas kvs (assocM k v m )
-{-
 
+
+
+--4.  ()
+mapToList :: Eq k => Map k v -> [(k, v)]
+--Propósito: convierte un map en una lista de pares clave valor.
+mapToList m = listar (keys m) m
+
+
+--O(n^2)
+listar :: Eq k => [k] -> Map k v-> [(k,v)]
+listar [] m = []
+listar (k:ks) m = (k, valor (lookupM k m)) : listar ks m
+
+valor :: Maybe a -> a
+valor (Just v) = v
+
+
+
+--5. 
+agruparEq :: Eq k => [(k, v)] -> Map k [v]
+--Propósito: dada una lista de pares clave valor, agrupa los valores de los pares que compartan 
+--la misma clave.
+agruparEq kvs = listToMap (agruparPorK kvs)
+
+agruparPorK :: Eq k => [(k, v)] -> [(k, [v])]
+agruparPorK [] = []
+agruparPorK ((k,v):kvs) = (k , [v] ++ valorClave k kvs) : agruparPorK (sinElemento k kvs)
+
+valorClave :: Eq k => k -> [(k, v)] -> [v]
+valorClave k [] = []
+valorClave k ((k', v'):kvs) = if k == k'
+                              then v' : valorClave k kvs
+                              else valorClave k kvs
+
+sinElemento :: Eq k => k -> [(k, v)] -> [(k, v)]
+sinElemento _ [] = []
+sinElemento k ((k',v):kvs) = if k == k'
+                             then sinElemento k kvs 
+                             else (k',v) : sinElemento k kvs 
+
+---------------------------------
+--6. 
+incrementar :: Eq k => [k] -> Map k Int -> Map k Int
+--Propósito: dada una lista de claves de tipo k y un map que va de k a Int, le suma uno a
+--cada número asociado con dichas claves.
+
+incrementar ks m = agregarAPares ks (mapToList m)
+
+
+-- SE ESTA HACIENDO RECURSION SOBRE LAS DOS LISTAS, CORREGIR CON DOS FUNCIONES EN LAS QUE CADA UNA RECPORRA C
+-- CADA LISTA
+agregarAPares :: Eq k => [k] -> [(k, Int)] -> [(k, Int)]
+
+agregarAPares [] kns = kns
+agregarAPares _  []  = []
+agregarAPares (k:ks) ((k',n):kns) = if k == k'
+                                    then (k',n+1) : agregarAPares k kns
+                                    else (k',n) : agregarAPares k kns
+
+{-
+assocM k (valor (lookupM k m) + 1) m 
 Implementar como usuario del tipo abstracto Map las siguientes funciones:
 
 
-4. mapToList :: Eq k => Map k v -> [(k, v)]
-Propósito: convierte un map en una lista de pares clave valor.
-5. agruparEq :: Eq k => [(k, v)] -> Map k [v]
-Propósito: dada una lista de pares clave valor, agrupa los valores de los pares que compartan
-la misma clave.
-6. incrementar :: Eq k => [k] -> Map k Int -> Map k Int
-Propósito: dada una lista de claves de tipo k y un map que va de k a Int, le suma uno a
-cada número asociado con dichas claves.
+
+
+
 7. mergeMaps:: Eq k => Map k v -> Map k v -> Map k v
 Propósito: dado dos maps se agregan las claves y valores del primer map en el segundo. Si
 una clave del primero existe en el segundo, es reemplazada por la del primero.
