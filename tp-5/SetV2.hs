@@ -17,6 +17,7 @@ data Set a = Set [a] Int
 INV REP:
     Set xs l 
     l representa la longitud de xs
+    en xs se admiten elementos repetidos
 -}
 
 emptySet :: Set a
