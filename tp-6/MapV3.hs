@@ -1,16 +1,21 @@
 {-
-2. Map (diccionario)
-Ejercicio 3
-
-1. Como una lista de pares-clave valor sin claves repetidas
+3. Como dos listas, una de claves y otra de valores, donde la clave ubicada en la posición i está
+asociada al valor en la misma posición, pero de la otra lista.
 -}
+
 
 module Map
 
 (Map, emptyM, assocM, lookupM, deleteM, keys) 
 where
 
-data Map k v = M [(k,v)]  deriving Show
+data Map k v = M [k] [v] 
+
+{-
+INV REP: 
+ - en M ks vs:
+   - ks representa las claves y vs los valores, ambas listas tiene la misma longitud
+-}
 
 
 emptyM :: Map k v
@@ -26,24 +31,21 @@ keys :: Map k v -> [k]
 
 
 --O(1)
-emptyM = M []
+emptyM = M [] []
 
 --O(n)
-assocM k v (M kvs) = (M (asociar k v kvs))
+assocM k v (M ks vs) = (M (k:ks) (v:vs))
+
 
 --O(n)
-asociar :: Eq k => k -> v -> [(k, v)] -> [( k, v)]
--- si ya esta en la lista sobreescribe el valor
-asociar k v [] = [(k,v)]
-asociar k v ((k',v'): kvs) = if k ==k'
-                           then (k,v) : kvs
-                           else (k',v') : asociar k v kvs
+lookupM k (M [] _) = Nothing
+lookupM k (M  (k:ks) vs) = 
 
---O(n)
-lookupM k (M []) = Nothing
-lookupM k (M ((k',v') : kvs)) = if k == k'
-                                then Just v'
-                                else lookupM k (M kvs)
+
+getIndex :: Eq a => a -> [a] -> Int
+--Prec x esta en la lista
+getIndex x _ = 0
+getIndex x (x':xs) = unoSi (x==x') + getIndex x xs  
 
 --O(n)
 deleteM k (M kvs) = (M (borrar k kvs))
@@ -56,7 +58,7 @@ borrar k  ((k', v') : kvs ) = if k == k'
                                else (k',v') : borrar k kvs
 
 
---O(n)
-keys (M [])          = []
-keys (M ((k,v):kvs)) = k : keys (M kvs) 
+--O(1)
+keys (M [] _) = []
+keys (M ks _) = ks 
 
