@@ -20,13 +20,14 @@ menor a mayor utilizando una Priority Queue como estructura auxiliar. ¾Cuál es
 
 --O(n^2)
 heapSort :: Ord a => [a] -> [a]
-heapSort xs = toListPQ (insertAllPQ xs emptyPQ)
+heapSort xs = toListPQ (listToPQ xs )
 
 
--- O(n)
-insertAllPQ ::  Ord a => [a] -> PriorityQueue a-> PriorityQueue a
-insertAllPQ [] pq = pq 
-insertAllPQ (x:xs) pq = insertAllPQ xs ( insertPQ x pq )
+-- O(n^2)
+-- n x (n veces el costo de insert + 1 de costo de emptyPQ)
+listToPQ ::  Ord a => [a] -> PriorityQueue a
+listToPQ [] = emptyPQ
+listToPQ (x:xs) =  insertPQ x (listToPQ xs) 
 
 --O(n^2)
 toListPQ :: Ord a => PriorityQueue a -> [a]
@@ -91,11 +92,9 @@ mapToList m = listar (keys m) m
 --O(n^2)
 listar :: Eq k => [k] -> Map k v-> [(k,v)]
 listar [] m = []
-listar (k:ks) m = (k, valor (lookupM k m)) : listar ks m
-
-valor :: Maybe a -> a
-valor (Just v) = v
-
+listar (k:ks) m = case  lookupM k m of 
+       Just x -> (k, x) : listar ks m
+       Nothing -> listar ks m
 
 
 --5. 
@@ -209,10 +208,23 @@ sinRepetidos (x:xs) = if elem x xs
 {-
 
 
-1. Implementar el tipo abstracto MultiSet utilizando como representación un Map. Indicar los
-ordenes de complejidad en peor caso de cada función de la interfaz, justicando las respuestas.
+
 2. Reimplementar como usuario de MultiSet la función ocurrencias de ejercicios anteriores,
 que dado un string cuenta la cantidad de ocurrencias de cada caracter en el string. En este
 caso el resultado será un multiconjunto de caracteres.
 
 -}
+
+
+--O(n^2) 
+-- n siendo la cantidad de caracteres en el string
+ocurrencias2 :: String ->  [(Char, Int)]
+--Propósito: dado un string, devuelve un map donde las claves son los caracteres que aparecen
+--en el string, y los valores la cantidad de veces que aparecen en el mismo.
+ocurrencias2 cs =    multiSetToList (listToMS xs)
+
+
+--O(n^2)
+listToMS :: Ord a => [a] -> MultiSet a
+listToMS []  = emptyMS 
+listToMS (x:xs) ms = addMS x (listToMS xs) 

@@ -11,7 +11,7 @@ module MultiSet
 (MultiSet, emptyMS, addMS, ocurrencesMS, unionMS, intersectionMS, multiSetToList)
 where 
 
-data MultiSet a = MS Map a 
+data MultiSet a = MS (Map a int)
 
 
 emptyMS :: MultiSet a
@@ -37,8 +37,12 @@ multiSetToList :: MultiSet a -> [(a, Int)]
 emptyMS = MS emptyM
 
 ------------------
---0(n+n) n siendo la longitud de map y se suman debido a que se recorre dos veces
-addMS x (MS map) = MS assocM x (valorInt (lookUpM x map) + 1) map
+--0(n) 
+addMS x (MS mp) =  case lookupM x mp of 
+                  Just n  ->  MS ( assocM x (n + 1) mp)
+                  Nothing ->  MS (assocM x 1 mp)
+
+
 
 --O(1)
 valorInt :: Maybe Int -> Int
@@ -47,10 +51,13 @@ valorInt Just n = n
 
 ----------------
 --O(n) n siendo la longitud de m
-ocurrencesMS x (MS m) = valorInt (lookUpM x m)
+ocurrencesMS x (MS m) = case lookupM x mp of 
+                        Just n  ->  n
+                        Nothing ->  0
+
 
 ------------------
-unionMS :: Ord a => MultiSet a -> MultiSet a -> MultiSet a 
+
 unionsMS (MS m1) (MS m2) = undefined 
 
 
@@ -59,3 +66,22 @@ unionsMS (MS m1) (MS m2) = undefined
 
 -----------
 intersectionMS (MS m1) (MS m2) =  undefined
+
+-----------------------
+
+multiSetToList (MS m) = mapToList m
+
+
+--  O(n^2): n siendo la cantidad de elementos que haya en el map
+mapToList :: Eq k => Map k v -> [(k, v)]
+--Propósito: convierte un map en una lista de pares clave valor.
+mapToList m = listar (keys m) m
+
+
+--O(n^2)
+listar :: Eq k => [k] -> Map k v-> [(k,v)]
+listar [] m = []
+listar (k:ks) m = (k, valor (lookupM k m)) : listar ks m
+
+valor :: Maybe a -> a
+valor (Just v) = v
