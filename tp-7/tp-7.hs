@@ -76,17 +76,20 @@ splitMaxBST :: Ord a => Tree a -> (a, Tree a)
 splitMaxBST t = (maxBST t, deleteBST (maxBST t) t )
 
 
---6. Costo: O(N2) 
+--6. Costo: O(N2) se hace operaciones lineales (sonMenores y sonMayores) por cada elemento del tree
 esBST :: Ord a => Tree a -> Bool
 --Propósito: indica si el árbol cumple con los invariantes de BST.
 esBST EmptyT = True
-esBST (NodeT x ti td) = estaEntre x (root ti) (root td) &&  esBST ti && esBST td
+esBST (NodeT x ti td) = sonMenores x ti && sonMayores x td &&  esBST ti && esBST td
 
-root (NodeT x _ _) = x 
 
-estaEntre :: Ord a => a -> a -> a -> Bool
-estaEntre x y z = y < x && x < z
+sonMenores :: Ord a => a -> Tree a -> Bool --O(n)
+sonMenores x EmptyT = True
+sonMenores x (NodeT y ti td) = x>y && sonMenores x ti && sonMenores x td 
 
+sonMayores :: Ord a => a -> Tree a -> Bool --O(n)
+sonMayores x EmptyT = True
+sonMayores x (NodeT y ti td) = x<y && sonMayores x ti && sonMayores x td 
 -----------------------
 
 --7. Costo: O(log N) 
@@ -110,8 +113,10 @@ elMinimoMayorA _ EmptyT          = Nothing
 elMinimoMayorA x (NodeT y ti td) = if (x==y)
                                    then Just (minBST td)
                                    else if (x < y)
-                                        then elMinimoMayorA x ti
-                                        else elMinimoMayorA x td
+                                        then case elMinimoMayorA x ti of
+                                             Just v -> Just v 
+                                             Nothing -> Just y
+                                        else elMinimoMayorA x td 
 
 
 --9. Costo: O(N2)

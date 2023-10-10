@@ -3,7 +3,7 @@ module Empresa
 
 {-
 INV REP : 
-    -en el segundo map cada clave esta asociada con dicha clave como cuil.
+    -en el segundo map cada clave esta asociada a un valor empleado con dicha clave como cuil.
     - todo sectorId asociado a un empleado ya sea parte de un conjunto valor del primer map o valor del segundo map 
         tiene que estar en el primer map como clave.
     - todo sector id del primer map tiene que tener asociado un conjunto con dichos empleados que tiene dicho sector asociado
