@@ -47,6 +47,8 @@ ejMap2 = assocM 'a' 5  $
        assocM 'e' 2  $
        assocM 'f' 1 emptyM
 
+--------------------------------------------------------------------------------------------------
+
 --1.  O(n^2)
 valuesM :: Eq k => Map k v -> [Maybe v]
 --Propósito: obtiene los valores asociados a cada clave del map.
@@ -58,6 +60,7 @@ valoresClaves :: Eq k => [k] -> Map k v -> [Maybe v]
 valoresClaves [] _ = []
 valoresClaves (k:ks) m  = lookupM k m : valoresClaves ks m
 
+--------------------------------------------------------------------------------------------------
 
 --2. O(n^2)
 todasAsociadas :: Eq k => [k] -> Map k v -> Bool
@@ -70,6 +73,7 @@ notNothing ::  Maybe v -> Bool
 notNothing Nothing = False
 notNothing _ = True 
 
+--------------------------------------------------------------------------------------------------
 
 --3. --O(n^2)
 listToMap :: Eq k => [(k, v)] -> Map k v
@@ -81,7 +85,7 @@ asociarlas :: Eq k => [(k, v)] -> Map k v -> Map k v
 asociarlas [] m = m
 asociarlas ((k,v): kvs) m = asociarlas kvs (assocM k v m )
 
-
+--------------------------------------------------------------------------------------------------
 
 --4.  O(n^2): n siendo la cantidad de elementos que haya en el map
 mapToList :: Eq k => Map k v -> [(k, v)]
@@ -96,6 +100,7 @@ listar (k:ks) m = case  lookupM k m of
        Just x -> (k, x) : listar ks m
        Nothing -> listar ks m
 
+--------------------------------------------------------------------------------------------------
 
 --5. 
 agruparEq :: Eq k => [(k, v)] -> Map k [v]
@@ -105,7 +110,7 @@ agruparEq kvs = listToMap (agruparPorK kvs)
 
 agruparPorK :: Eq k => [(k, v)] -> [(k, [v])]
 agruparPorK [] = []
-agruparPorK ((k,v):kvs) = (k , [v] ++ valorClave k kvs) : agruparPorK (sinElemento k kvs)
+agruparPorK ((k,v):kvs) = (k , v : (valorClave k kvs))  : agruparPorK (sinElemento k kvs)
 
 valorClave :: Eq k => k -> [(k, v)] -> [v]
 valorClave k [] = []
@@ -119,7 +124,7 @@ sinElemento k ((k',v):kvs) = if k == k'
                              then sinElemento k kvs 
                              else (k',v) : sinElemento k kvs 
 
----------------------------------
+----------------------------------------------------------------------------------
 
 --6. PROBLEMA: si la lista esta vacia se vacia el map
 --O(n^2):
@@ -146,7 +151,7 @@ agregarAPares2 k ((k',n):kns) = if k == k'
                                     then (k',n+1) :  kns
                                     else (k',n) : agregarAPares2 k kns
 
----------------
+----------------------------------------------------------------
 
 
 --7. 
