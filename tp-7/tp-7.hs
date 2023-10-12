@@ -344,10 +344,14 @@ convertirEnComodin c emp = agregarEmpleado (todosLosSectores emp) emp
 esComodin :: CUIL -> Empresa -> Bool
 --Propósito: dado un CUIL de empleado indica si el empleado está en todos los sectores.
 --Costo: O(n^2)
-esComodin c emp = esComodin2 c (todosLosSectores emp) emp
+esComodin c emp = estaEnSectores c (todosLosSectores emp) emp
 
-esComodin2 :: CUIL -> [SectorId] -> Empresa -> Bool
+estaEnSectores :: CUIL -> [SectorId] -> Empresa -> Bool
+-- PROP : indica si el empleado con el cuil dado esta en los sectores dados dentro de la empresa
 --costo: O(n^2) siendo n la longitud de la lista
 -- hace pertenece que es lineal sobre cada elemento de la lista
-esComodin2 c [] emp = True
-esComodin2 c (sid:sids) emp = pertenece c (empleadosDelSector sid) && esComodin2 c sids emp
+estaEnSectores c [] emp = True
+estaEnSectores c (sid:sids) emp = pertenece c (empleadosDelSector sid) && estaEnSectores c sids emp
+
+----------------------------------------------------------------------------------------------------------
+
