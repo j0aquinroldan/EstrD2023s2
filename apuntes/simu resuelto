@@ -1,0 +1,25 @@
+agregarPrograma :: Organizador -> Checksum -> Set Persona -> Organizador
+{-Propósito: Agrega al organizador un programa con el Checksum indicado; el conjunto es el conjunto de personas autores
+de dicho programa.
+Precondición: el identificador del programa que se agrega no fue usado previamente en el organizador, y el Set de personas
+no está vacío.
+Eficiencia: no hay ninguna garantía de eficiencia-}
+agregarPrograma (MkO cxp pxc) c  ps = 
+    case lookup c cxp of
+    Just ps -> error "el checksum ya estaba registrado"
+    Nothing -> MK0 (assocM c ps cxp)
+    -- por cada persona, agregarle su cheksum 
+    (registrarProgramas (setToList ps) c pxc)
+
+registrarProgramas :: [Persona] -> Checksum -> Map Persona (Set Checksum)
+registrarProgramas []     c pxc = pxc
+registrarProgramas (p:ps) c pxc = 
+    case lookupM p pxc of  
+        Just cs -> assocM p (addS c cs) (registrarProgramas ps c pxc)
+        Nothing cs -> assocM p (addS c emptyS) (registrarProgramas ps c pxc)
+
+lookupSet :: Eq (k, a) => k -> (Map k (Set a)) -> Set a
+lookupSet x m =
+    case lookupM x m of
+        Just s -> s 
+        Nothing -> emptyS
