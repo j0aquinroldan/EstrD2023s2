@@ -84,14 +84,23 @@ agregarEmpleado sids c (ConsE ms mc) = let empleado = incorporarSectores sids (c
 agregarASectores :: [SectorId] -> Empleado -> Map SectorId (Set Empleado) -> Map SectorId (Set Empleado)
 -- PROP: agrega el empleado a todos los sectores del map que esten en la lista
 --PREC : los sectores estan entre las claves del map
--- costo: O(n log n)
+-- costo: 
+-- recursion sobre lista sid O(S) siendo S la longitud de la lista
+-- agregarASector2 O(log S + log E) siendo S la cantidad de claves SectorId en el map (coinciden con la lista)
+-- y siendo E la cantidad de Empleados en cada sector
+-- O(S * (log S + log E))
 agregarASectores [] _ ms = ms
 agregarASectores (sid:sids) emp ms = agregarASector2 sid emp (agregarASectores sids emp )
 
 agregarASector2 :: SectorId -> Empleado -> (Map SectorId (Set Empleado)) -> (Map SectorId (Set Empleado))
 --PROP : agrega el empleado al sector del map que coincida con el dado por parametro
 --PREC : el sector esta entre las claves del map
--- costo: O(log n)
+-- costo: 
+-- lookupM O(log S) siendo S la cantidad de claves SectorId en ms
+-- addSet O(log E) siendo E la cantidad de empleados en el set
+-- assocM O(log S) siendo S la cantidad de claves SectorId en ms
+-- O(log S + log S + log E) => O (2* log S + log E) => 
+-- O(log S + log E)
 agregarASector2 sid emp ms = assocM sid (addSet emp (valor(lookupM sid ms ))) ms
 --                    asoc sector (-agrega emp-da el set-busca el sector) al map
 
@@ -113,10 +122,33 @@ incorporarSectores (sid:sids) e = incorporarSector sid (incorporarSectores sids 
 
 agregarASector :: SectorId -> CUIL -> Empresa -> Empresa
 --Propósito: agrega un sector al empleado con dicho CUIL.
---Costo: addSet O(log n) + assocM O(log n) + lookupM O(log n) = agregarASector O(log n)
-agregarASector sid c (ConsE ms mc) = case (lookupM c mc) of 
-                                     Just s -> ConsE ms (assocM c (addSet sid s) mc)
-                                     Nothing -> error "no existe el empleado"
+-- PREC: el empleado existe en la empresa
+--Costo: 
+-- incorporarSector O(log S), siendo S la cantidad de sectores del empleado
+-- buscarPorCUIL O(log C), siendo C la cantidad de claves CUIL en la empresa 
+-- actualizarEmpleado O( S * (log S + log E) + log C ), 
+-- S = cantidad de sectores del empleado, E = la cantidad de empleados POR sector, C = cantidad de claves CUIL en la empresa 
+-- O(log S +  S * (log S + log E) + log C + log C ) => O(log S +  S * (log S + log E) + log C ) =>
+-- O(S * (log S + log E) + log C )
+agregarASector sid c e = let emp = incorporarSector sid (buscarPorCUIL c e) in
+                         actualizarEmpleado emp c sid e
+
+
+actualizarEmpleado :: Empleado -> Empresa -> Empresa
+-- PROP: actualiza al empleado dentro de los sectores de la empresa
+--PREC: el empleado existe en la empresa
+-- COSTO: 
+-- cuil O(1)
+-- assocM O(log C), siendo C la cantidad de claves CUIL del map
+-- sectores O(S), siendo S la cantidad de sectores del empleado
+-- agregarASectores O(S * (log S + log E)), siendo S la cantidad de sectores del empleado y 
+-- siendo e la cantidad de empleados por sector
+-- O( S * (log S + log E) + S + log C ) => O( S * (log S + log E) + log C )
+-- se simplifica la S lineal con la S "eneloguene"
+actualizarEmpleado emp (ConsE ms mc) = ConsE (agregarASectores (sectores emp) emp ms)  
+                                             (assocM (cuil emp) emp mc)
+
+
 
 -----------------------------------------------------------------------------
 

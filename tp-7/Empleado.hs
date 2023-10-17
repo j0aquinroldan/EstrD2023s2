@@ -26,7 +26,7 @@ incorporarSector sid (ConsEmp c sids) = ConsEmp c (insertBST sid sids)
 
 sectores :: Empleado -> [SectorId]
 --Propósito: indica los sectores en los que el empleado trabaja.
---Costo: O(S) ??????????
+--Costo: O(S) 
 sectores (ConsEmp _ sids) = inorder sids 
 
 

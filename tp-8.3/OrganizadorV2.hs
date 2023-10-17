@@ -24,6 +24,9 @@ elMayorPrograma :: Organizador -> Maybe Checksum
 --Nothing si no puede devolver un programa.
 --Eficiencia: O(1) en peor caso.
 
+
+--------------------------------------------------------------------------------------------------------------
+
 nuevo :: Organizador
 --Propósito: Un organizador vacío.
 --Eficiencia: O(1)
