@@ -36,6 +36,15 @@ int ft(int n, int m) {
     return n + ft(n+1, m);
 }
 
+int ft2 (int n, int m ){
+    int x = n;
+    while(n < m ){
+        x += x + 1;
+        n++;
+    }
+    return x;
+}
+
 
 /*
 Ejercicio 3
@@ -85,9 +94,8 @@ int maxDelPar(Par p){
 
 // Propósito: devuelve un par con las componentes intercambiadas
 Par swap(Par p){
-   int nuevoX = p.y;
    int nuevoY = p.x;
-   p.x = nuevoX;
+   p.x = p.y;
    p.y = nuevoY;
    return p; 
 
@@ -117,8 +125,7 @@ Propósito: realiza la multiplicación entre dos números (sin utilizar la opera
 5. void primerosN(int n, string s)
 Propósito: imprime los primeros n char del string s, separados por un salto de línea.
 Precondición: el string tiene al menos n char.
-6. bool pertenece(char c, string s)
-Propósito: indica si un char c aparece en el string s.
+
 7. int apariciones(char c, string s)
 Propósito: devuelve la cantidad de apariciones de un char c en el string s.
 
@@ -185,4 +192,35 @@ void idesdeCeroHastaN(int n){
     for(int m=0; m<=n; m++){
         cout<<m>>;
     }
+}
+
+
+//6. 
+bool pertenece(char c, string s){
+//Propósito: indica si un char c aparece en el string s.
+    if (s.length == 0)
+    {
+        return false;
+    }else{
+        if (s[0] == c)
+        {
+            return true;
+        }else{
+            pertenece (c, s.substr (1,s.length())); 
+        }
+    }
+}
+
+
+bool ipertenece(char c, string s){
+//Propósito: indica si un char c aparece en el string s.
+    bool b=false;
+    int i = 0;
+    while (i< s.length() && !b)
+    {
+         b = s[i] == c;
+         i++;
+    }
+    return b;
+
 }
