@@ -1,3 +1,8 @@
+#include <iostream>
+#include "Par.h"
+using namespace std;
+
+
 /*
 Ejercicio 2
 Indicar el propósito de los siguientes procedimientos o funciones, dando algunos ejemplos de uso
@@ -7,6 +12,7 @@ junto con su resultado. Considerar el consumo de memoria de cada programa, y si 
  // 1. 
  // Proposito: imprime los caracteres desde el primero dado por parametro hasta el segundo 
  // Precondición: c1 < c2
+ /*
 void printFromTo(char c1, char c2) {
     for(int i = 0; c1 + i <= c2; i++) {
         cout << c1 + i << ", ";
@@ -44,7 +50,7 @@ int ft2 (int n, int m ){
     }
     return x;
 }
-
+*/
 
 /*
 Ejercicio 3
@@ -53,14 +59,11 @@ sobre pares. Recordar probar las implementaciones en un procedimiento main.
 ;
 */
 
-struct Par {
-    int x;
-    int y;
-}
+
 
 // Propósito: construye un par
 Par consPar(int x, int y){
-    Par p = struct Par;
+    Par p;
     p.x = x;
     p.y = y;
     return p;
@@ -104,9 +107,9 @@ Par swap(Par p){
 // Propósito: devuelve un par donde la primer componente
 // es la división y la segunda el resto entre ambos números
 Par divisionYResto(int n, int m){
-    Par p = struct Par;
-    p.x = n DIV m;
-    p.y = n MOD m;
+    Par p;
+    p.x = n/m;
+    p.y = n % m;
     
     return p;
 }
@@ -224,3 +227,74 @@ bool ipertenece(char c, string s){
     return b;
 
 }
+
+
+struct Fraccion {
+int numerador;
+int denominador;
+};
+
+// Propósito: construye una fraccion
+// Precondición: el denominador no es cero
+Fraccion consFraccion(int numerador, int denominador){
+    Fraccion f;
+    f.numerador = numerador;
+    f.denominador = denominador;
+}
+
+
+// Propósito: devuelve el numerador
+int numerador(Fraccion f){
+
+    return f.numerador;
+}
+
+
+// Propósito: devuelve el denominador
+int denominador(Fraccion f){
+    return f.denominador;
+}
+
+
+
+// Propósito: devuelve el resultado de hacer la división
+float division(Fraccion f){
+    return f.numerador / f.denominador;
+
+}
+
+
+// Propósito: devuelve una fracción que resulta de multiplicar las fracciones
+// (sin simplificar)
+Fraccion multF(Fraccion f1, Fraccion f2){
+    Fraccion res;
+    res.numerador = f1.numerador * f2.numerador;
+    res.denominador = f1.denominador * f2.denominador;
+    return res;
+}
+
+
+
+// Propósito: devuelve una fracción que resulta
+// de simplificar la dada por parámetro
+Fraccion simplificada(Fraccion p){
+
+}
+
+
+// Propósito: devuelve la primera componente
+Fraccion sumF(Fraccion f1, Fraccion f2){
+
+    
+}
+
+
+
+/*
+Ejercicio 5
+Dada la estructura de fracciones representada como struct en C++, definir las siguientes funciones
+sobre fracciones. Recordar probar las implementaciones en un procedimiento main.
+
+
+
+*/
