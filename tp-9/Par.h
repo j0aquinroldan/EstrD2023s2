@@ -3,4 +3,3 @@ struct Par {
     int y;
 };
 
-typedef struct Par Par;
