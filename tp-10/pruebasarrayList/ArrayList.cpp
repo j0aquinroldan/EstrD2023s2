@@ -36,14 +36,22 @@ int get(int i, ArrayList xs)
     {
         perror("no existe ese indice");
     }
-
-    return xs->elementos[i];
+    else
+    {
+        return xs-> elementos[i];
+    }
 }
 
 void set(int i, int x, ArrayList xs)
 {
-
-    xs->elementos[i] = x;
+    if (i >= xs->cantidad)
+    {
+        perror("no hay nada en ese indice");
+    }
+    else
+    {
+        xs->elementos[i] = x;
+    }
 }
 
 void resize(int c, ArrayList xs)
@@ -90,3 +98,21 @@ void remove(ArrayList xs)
     }
     xs->cantidad--;
 }
+
+bool isEmptyAl(ArrayList xs){
+    return xs->cantidad==0;
+}
+
+void printAL(ArrayList xs)
+{
+    if (not isEmptyAl(xs))
+    {
+        cout<<"[" << get(0,xs);
+        for (int i = 1; i < xs->cantidad; i++)
+        {
+            cout << ", "<< get(i,xs);
+        }
+         cout<<"]"<<endl;
+    }
+}
+

@@ -1,5 +1,5 @@
 #include <iostream>
-#include "ArrayList.cpp"
+#include "ArrayList.h"
 using namespace std;
 
 int sumatoria(ArrayList xs)
