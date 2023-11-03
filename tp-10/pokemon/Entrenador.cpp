@@ -1,6 +1,6 @@
 #include "Entrenador.h"
 #include <string>
-#include "Pokemon.h"
+
 
 
 
@@ -53,7 +53,7 @@ int cantidadDePokemonDe(TipoDePokemon tipo2, Entrenador e){
 
 
 
-Pokemon pokemon_nro(int i, Entrenador e){
+Pokemon pokemonNro(int i, Entrenador e){
 //PROP:Devuelve el pokémon número i de los pokémon del entrenador.
 //PREC: existen al menos i − 1 pokémon.
     if (i >= e->cantPokemon )
@@ -86,9 +86,12 @@ bool leGanaATodos(Entrenador e1, Entrenador e2){
 //PROP:Dados dos entrenadores, indica si, para cada pokémon del segundo entrenador, el primero
 //posee al menos un pokémon que le gane.
     bool res = true;
-    for (int i = 0; i < e2->cantPokemon; i++)
+    int i=0;
+    while (res && i < e1->cantPokemon)
     {
-       res = res && leGanaA(e1, e2->pokemon[i]);
+        res = leGanaA(e1, e2->pokemon[i]);
+        i++;
     }
     
+    return res;
 }
