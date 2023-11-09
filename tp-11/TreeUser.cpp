@@ -1,6 +1,20 @@
 #include "Tree.h"
-#include <algorithm.h>
+//#include <algorithm.h>
 #include "ArrayList.h"
+using namespace std;
+#include<algorithm>
+
+
+ArrayList Append(ArrayList a1, ArrayList a2){
+
+    for (int i = 0; i < a2->cantidad; i++)
+    {
+        add(get(i,a2), a1);
+        
+    }
+    delete a2;
+    return a1;
+}
 
 // 1.
 int sumarT(Tree t)
@@ -80,7 +94,7 @@ ArrayList toList(Tree t){
     }
     else
     {
-        return  toList(left(t)) toList(right(t));////falta append
+        return  Append(toList(left(t)), toList(right(t)));////falta append
     }
 }
 
@@ -94,9 +108,10 @@ ArrayList leaves(Tree t){
     }
     if (isEmptyT(left(t)) && isEmptyT(right(t)))
     {
-        return add(rootT(t), al);
+        add(rootT(t), al);
+        return al;
     }
-    return leaves(left(t)) ++ leaves(right(t)); // solucionar append
+    return Append(leaves(left(t)), leaves(right(t))); 
     
 }
 
@@ -111,8 +126,9 @@ ArrayList levelN(int n, Tree t){
     }
     if (n==0)
     {
-        return add(rootT(t),al);
+        add(rootT(t),al);
+        return al;
     }
 
-    return levelN((n-1), left(t)) ++ levelN((n-1), right(t));
+    return Append(levelN((n-1), left(t)) , levelN((n-1), right(t)));
 }
