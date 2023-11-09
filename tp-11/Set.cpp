@@ -1,5 +1,6 @@
 #include "Set.h"
 #include <iostream>
+using namespace std;
 
 struct NodoS
 {
@@ -44,59 +45,104 @@ bool belongsS(int x, Set s)
     return res;
 }
 
-NodoS* lastNode(int x){
-    NodoS* n = new NodoS;
+NodoS *lastNode(int x)
+{
+    NodoS *n = new NodoS;
     n->elem = x;
-    n->siguiente= NULL;
+    n->siguiente = NULL;
     return n;
 }
 
 void AddS(int x, Set s)
 {
     // Agrega un elemento al conjunto.
-    NodoS *actual = s->primero;
-    while (actual->siguiente != NULL)// mientras no sea el ultimo el elemento
+
+    NodoS *newN = new NodoS; // Crear un nuevo nodo
+    newN->elem = x;
+    newN->siguiente = NULL;
+
+    // Si el conjunto está vacío, el nuevo nodo va primero y no chequeo si ya esta
+    if (s->primero == NULL)
     {
-        if (actual->elem == x)      // si el elemento actual coincide sali
-        {
-            break;
+        s->primero = newN;
+        s->cantidad++;
+        return;
+    }
+
+    // si no esta vacio, busco que ningun nodo coincida con el nuevo y busco el último nodo de la lista
+    NodoS *temp = s->primero;
+
+    while (temp->siguiente != NULL)
+    { // si temp->siguiente ==NULL => es el ultimo nodo
+        if (temp->siguiente->elem == x)
+        { // si el siguiente es repetido no lo agrega
+            delete newN;
+            return; // retorna ya que encontro un elemento que coincide con el nuevo => no lo agrega
         }
-        
-        actual = actual->siguiente;
+        temp = temp->siguiente;
     }
 
-    actual->siguiente = lastNode(x);
-}
-
-
-void AddS2(int x, Set s)
-{
-    // Agrega un elemento al conjunto.
-    NodoS* actual = s->primero;
-    while (actual->siguiente != NULL)
+    if (temp->elem == x) // si el actual es repetido no lo agrega
     {
-        actual = actual->siguiente;
+        delete newN;
+        return; // retorna ya que encontro un elemento que coincide con el nuevo => no lo agrega
     }
-
-    
-}
+    // actualizar el puntero del antiguo último nodo e incrementar cantidad;
+    temp->siguiente = newN;
+    s->cantidad++;
+} // hay que mejorar y hacerlo mas prolijo
 
 void RemoveS(int x, Set s)
 {
     // Quita un elemento dado.
+
+    if (s->primero == NULL)
+    {
+        return;
+    }
+    NodoS *temp = s->primero;
+
+    while (temp->siguiente != NULL)
+    { // si temp->siguiente ==NULL => es el ultimo nodo
+        if (temp->siguiente->elem == x)
+        {
+            NodoS *temp2 = temp->siguiente;
+            temp->siguiente = temp->siguiente->siguiente; // hay que liberar el siguiente anterior???
+            s->cantidad--;
+            delete temp2;
+            return;
+        }
+        temp = temp->siguiente;
+    }
 }
 
 int sizeS(Set s)
 {
     // Devuelve la cantidad de elementos.
+    return s->cantidad;
 }
 
 LinkedList setToList(Set s)
 {
     // Devuelve una lista con los lementos del conjunto.
+    LinkedList li = nil();
+    NodoS *temp = s->primero;
+    while (temp != NULL)
+    {
+        Snoc(temp->elem, li);
+        temp = temp->siguiente;
+    }
+    return li;
 }
 
 void DestroyS(Set s)
 {
     // Libera la memoria ocupada por el conjunto.
+    NodoS *temp = s->primero;
+    while (temp != NULL)
+    {
+        s->primero = s->primero->siguiente;
+        delete temp;
+    }
+    delete s;
 }

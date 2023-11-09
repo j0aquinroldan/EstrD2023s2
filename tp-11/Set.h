@@ -23,3 +23,5 @@ LinkedList setToList(Set s);
 //Devuelve una lista con los lementos del conjunto.
 void DestroyS(Set s);
 //Libera la memoria ocupada por el conjunto.
+
+int primer(Set s);
